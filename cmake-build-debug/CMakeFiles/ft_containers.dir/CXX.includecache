@@ -9,6 +9,8 @@
 /Users/mwinter/ft_containers/List.hpp
 memory
 -
+iostream
+-
 
 /Users/mwinter/ft_containers/main.cpp
 List.hpp
@@ -16,5 +18,7 @@ List.hpp
 list
 -
 iostream
+-
+memory
 -
 

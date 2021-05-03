@@ -1,6 +1,7 @@
 #include "List.hpp"
 #include <list>
 #include <iostream>
+#include <memory>
 
 
 int main(void) {
@@ -30,7 +31,39 @@ int main(void) {
 	for(it = newStdList.begin(); it != newStdList.end(); it++)
 		std::cout << "newStdList content: " << *it << std::endl;
 	std::cout << "Use Fill constructor on my list" << std::endl;
+	std::list<int> anotherList(10, 1);
 	ft::list<int> myList2(10, 1);
-	std::cout << "<+==============================================+>\n\n";
+	std::cout << "ft::list<int> myList2(10, 1);" << std::endl;
+    for (myIt = myList2.begin(); myIt != myList2.end(); myIt++)
+	    std::cout << "my list2 elements: " << *myIt << std::endl;
+	ft::list<char> testPushBack;
+	testPushBack.push_back('a');
+	testPushBack.push_back('b');
+	for(ft::list<char>::iterator myCharIt = testPushBack.begin(); myCharIt != testPushBack.end(); myCharIt++)
+	    std::cout << "Push back tester: " << *myCharIt << std::endl;
+	testPushBack.clear();
+	std::cout << "testPushBack.clear();" << std::endl;
+	std::cout << "testPushBack.size(): " << testPushBack.size() << std::endl;
+	ft::list<std::string> pushFrontTester;
+	pushFrontTester.push_front("Almir");
+    pushFrontTester.push_front("Arpnine");
+    pushFrontTester.push_front("Vova");
+    pushFrontTester.push_front("boba");
+    for (ft::list<std::string>::iterator strIt = pushFrontTester.begin(); strIt != pushFrontTester.end(); strIt++)
+        std::cout << "push front test:" << *strIt << std::endl;
+
+    ft::list<int> a;
+    a.push_back(10);
+    a.push_back(20);
+    a.push_back(30);
+    ft::list<int> b;
+    b.push_back(10);
+    b.push_back(20);
+    b.push_back(30);
+    if (a == b)
+        std::cout << "Yeap it's true" << std::endl;
+    std::list<int> g;
+    g.pop_back();
+    std::cout << "<+==============================================+>\n\n";
 	return 0;
 }
