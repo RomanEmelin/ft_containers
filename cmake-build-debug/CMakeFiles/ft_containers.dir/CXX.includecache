@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/mwinter/ft_containers/List.hpp
+memory
+-
+
+/Users/mwinter/ft_containers/main.cpp
+List.hpp
+/Users/mwinter/ft_containers/List.hpp
+list
+-
+iostream
+-
+
