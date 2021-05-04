@@ -3,6 +3,18 @@
 #include <iostream>
 #include <memory>
 
+template<typename T>
+struct comparator
+{
+    // Compare 2 Player objects using name
+    bool operator ()(const T & a, const T & b)
+    {
+        return a > b;
+    }
+};
+
+bool mycomparison (int first, int second)
+{ return first < second; }
 
 int main(void) {
 	std::cout << "<+==============================================+>\n\n";
@@ -62,8 +74,102 @@ int main(void) {
     b.push_back(30);
     if (a == b)
         std::cout << "Yeap it's true" << std::endl;
-    std::list<int> g;
-    g.pop_back();
+    a.clear();
+    b.clear();
+    ft::list<int> eqList;
+    ft::list<int> otherList(5, 4);
+    eqList = otherList;
+    otherList.clear();
+    for (myIt = eqList.begin(); myIt != eqList.end(); myIt++)
+        std::cout << "Copy constructor: " << *myIt << std:: endl;
+    std::cout << "Size: " << eqList.size() << std::endl;
+    ft::list<int> anCop(eqList);
+    eqList.clear();
+    for (myIt = anCop.begin(); myIt != anCop.end(); myIt++)
+        std::cout << "Copy constructor2: " << *myIt << std:: endl;
     std::cout << "<+==============================================+>\n\n";
+    anCop.clear();
+    otherList.clear();
+    testPushBack.clear();
+    pushFrontTester.clear();
+    myList2.clear();
+    myList.clear();
+    ft::list<char> hohoh;
+    for (int i = 0; i < 10; ++i)
+        hohoh.push_back((char)(i + 65));
+    ft::list<char>::reverse_iterator rit = hohoh.rbegin();
+    for (; rit != hohoh.rend(); rit++)
+        std::cout << "reverse it: " << *rit << std::endl;
+    std::cout << hohoh.front() << std::endl;
+    ft::list<char>::iterator newIt = hohoh.begin();
+    newIt++;
+    std::cout << "It: " << *newIt << std::endl;
+    hohoh.insert(newIt, '!');
+    std::cout << "Show insert by position: ";
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << *newIt << " ";
+    std::cout << std::endl;
+    newIt = hohoh.begin();
+    for (int i = 0; i < 3; ++i)
+        newIt++;
+    std::cout << "newIt: " << *newIt << std::endl;
+    hohoh.insert(newIt, 5, 'k');
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << "Insert by n: " << *newIt << std::endl;
+    ft::list<char> insertList(4, '*');
+    newIt = hohoh.begin();
+    for (int i = 0; i < 3; ++i)
+        newIt++;
+    hohoh.insert(newIt, insertList.begin(), insertList.end());
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << "Insert between iterators: " << *newIt << std::endl;
+    newIt = hohoh.begin();
+    for (int i = 0; i < 4; ++i)
+        newIt++;
+    hohoh.erase(newIt);
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << "erased: " << *newIt << std::endl;
+    std::cout << "resize: ";
+    hohoh.resize(5, 't');
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << *newIt << " ";
+    std::cout << std::endl;
+    std::cout << "Resize if n > .size(): ";
+    hohoh.resize(10, '^');
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << *newIt << " ";
+    std::cout << std::endl;
+    std::cout << "remove ^: ";
+    hohoh.remove('^');
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << *newIt << " ";
+    std::cout << std::endl << "Unique: ";
+    hohoh.unique();
+    for (newIt = hohoh.begin(); newIt != hohoh.end(); newIt++)
+        std::cout << *newIt << " ";
+    std::cout << std::endl;
+    ft::list<int> l1;
+    l1.push_back(3);
+    l1.push_back(2);
+    l1.push_back(2);
+    l1.sort();
+    ft::list<int> l2;
+    l2.push_back(3);
+    l2.push_back(7);
+    l2.push_back(1);
+    l2.push_back(2);
+    l2.sort();
+    l1.merge(l2, mycomparison);
+    std::cout << "size: " << l1.size() << std::endl;
+    std::cout << "merged: ";
+   // l1.sort(comparator<int>());
+    for (ft::list<int>::iterator lit = l1.begin(); lit != l1.end(); lit++)
+        std::cout << *lit << " ";
+//    std::cout << std::endl;
+//    std::cout << "l2: ";
+//    for (std::list<int>::iterator lit = l2.begin(); lit != l2.end(); lit++)
+//        std::cout << *lit << " ";
+
+    //    while(1);
 	return 0;
 }
