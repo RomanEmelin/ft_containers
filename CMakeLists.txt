@@ -11,4 +11,4 @@ include_directories(/ /Users/mwinter/ft_containers)
 
 add_executable(ft_containers
         main.cpp
-        Utils.hpp)
+        Utils.hpp Colors.hpp)

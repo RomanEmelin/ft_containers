@@ -6,6 +6,8 @@
 
 #IncludeRegexTransform: 
 
+/Users/mwinter/ft_containers/Colors.hpp
+
 /Users/mwinter/ft_containers/List.hpp
 memory
 -
@@ -20,5 +22,13 @@ list
 iostream
 -
 memory
+-
+Colors.hpp
+/Users/mwinter/ft_containers/Colors.hpp
+ctime
+-
+unistd.h
+-
+cmath
 -
 

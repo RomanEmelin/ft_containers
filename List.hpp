@@ -29,12 +29,12 @@ namespace ft {
      * @tparam T
      */
     template<class T>
-    class ListIterator {
+class ListIterator {
 
     public:
         typedef T value_type;
         typedef T &reference;
-        typedef Node<value_type> *pointer;
+        typedef Node<T> *pointer;
 
     protected:
         pointer _ptr;
@@ -59,6 +59,7 @@ namespace ft {
 
         ListIterator &operator++() {
             _ptr = _ptr->next;
+            return *this;
         }
 
         ListIterator operator++(int) {
@@ -69,6 +70,7 @@ namespace ft {
 
         ListIterator &operator--() {
             _ptr = _ptr->prev;
+            return *this;
         }
 
         ListIterator operator--(int) {
@@ -127,6 +129,7 @@ namespace ft {
 
         ConstListIterator &operator++() {
             _ptr = _ptr->next;
+            return *this;
         }
 
         ConstListIterator operator++(int) {
@@ -137,6 +140,7 @@ namespace ft {
 
         ConstListIterator &operator--() {
             _ptr = _ptr->prev;
+            return *this;
         }
 
         ConstListIterator operator--(int) {
@@ -197,6 +201,7 @@ namespace ft {
 
         ReverseListIterator &operator++() {
             _ptr = _ptr->prev;
+            return *this;
         }
 
         ReverseListIterator operator++(int) {
@@ -207,6 +212,7 @@ namespace ft {
 
         ReverseListIterator &operator--() {
             _ptr = _ptr->next;
+            return *this;
         }
 
         ReverseListIterator operator--(int) {
@@ -243,7 +249,6 @@ namespace ft {
 
     public:
         ConstReverseListIterator() {};
-
         ConstReverseListIterator(ConstReverseListIterator const &other) {
             *this = other;
         }
@@ -263,6 +268,7 @@ namespace ft {
 
         ConstReverseListIterator &operator++() {
             _ptr = _ptr->prev;
+            return *this;
         }
 
         ConstReverseListIterator operator++(int) {
@@ -273,6 +279,7 @@ namespace ft {
 
         ConstReverseListIterator &operator--() {
             _ptr = _ptr->next;
+            return *this;
         }
 
         ConstReverseListIterator operator--(int) {
@@ -295,6 +302,29 @@ namespace ft {
 
         value_type &operator*() const { return *(_ptr->content); };
     };
+
+    template<bool B, class T = void>
+    struct enable_if {};
+
+    template<class T>
+    struct enable_if<true, T> {
+        typedef T type;
+    };
+
+    template<class T>
+    struct is_iterator{static const bool value = true;};
+    template<>
+    struct is_iterator<int>{static const bool value = false;};
+    template<>
+    struct is_iterator<bool>{static const bool value = false;};
+    template<>
+    struct is_iterator<char>{static const bool value = false;};
+    template<>
+    struct is_iterator<unsigned int>{static const bool value = false;};
+    template<>
+    struct is_iterator<long>{static const bool value = false;};
+    template<>
+    struct is_iterator<long long>{static const bool value = false;};
 
     template<class T, class Alloc = std::allocator<T> >
     class list {
@@ -399,7 +429,7 @@ namespace ft {
         template<class InputIterator>
         list(InputIterator first, InputIterator last,
              const allocator_type &alloc = allocator_type(),
-             typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0):
+             typename ft::enable_if<ft::is_iterator<InputIterator>::value>::type* = 0):
              _emptyNode(nullptr), _allocator(alloc), _size(0) {
             initList();
             assign(first, last);
@@ -443,6 +473,7 @@ namespace ft {
         const_reverse_iterator rend() const { return const_reverse_iterator(_emptyNode); };
 
         //assign code block
+
         /**
          * Range assign filling list from first to last
          * @tparam InputIterator
@@ -450,7 +481,7 @@ namespace ft {
          * @param last end iterator
          */
         template<class InputIterator>
-        void assign(InputIterator first, InputIterator last) {
+        void assign(InputIterator first, InputIterator last, typename ft::enable_if<ft::is_iterator<InputIterator>::value>::type* = 0) {
             clear();
             while (first != last)
                 push_back(*first++);
@@ -482,10 +513,6 @@ namespace ft {
         reference back() { return *_emptyNode->prev->content; };
 
         const_reference back() const { return *_emptyNode->prev->content; };
-
-        void resize() {
-            //TODO use resize
-        }
 
         /**
          * Clear list
@@ -583,7 +610,7 @@ namespace ft {
          * @param last
          */
         template<class InputIterator>
-        void insert(iterator position, InputIterator first, InputIterator last) {
+        void insert(iterator position, InputIterator first, InputIterator last, typename ft::enable_if<ft::is_iterator<InputIterator>::value>::type* = 0) {
                 while (first != last)
                     insert(position, *first++);
         };
@@ -629,36 +656,49 @@ namespace ft {
         //splice code block
 
         /**
-         * Transfers all the elements of x into the container.
+         * Transfers all the elements of x into the container. The operation does not involve the construction
+         * or destruction of any element.
          * @param position in destination list
          * @param x source list
          */
         void splice(iterator position, list& x) {
-            insert(position, x.begin(), x.end());
-            x.clear();
+            splice(position, x, x.begin(), x.end());
         };
 
         /**
-         * Transfers only the element pointed by i from x into the container.
+         * Transfers only the element pointed by i from x into the container.The operation does not involve the
+         * construction or destruction of any element.
          * @param position in destination list
          * @param x source list
          * @param i source list position iterator
          */
         void splice (iterator position, list& x, iterator i) {
-            insert(position, i ,x.end());
-            x.erase(i, x.end());
+            splice(position, x, i, ++i);
         };
 
         /**
-         * Transfers the range [first,last) from x into the container
-         * @param position
-         * @param x
-         * @param first
-         * @param last
+         * Transfers the range [first,last) from x into the container The operation does not involve the construction
+         * or destruction of any element.
+         * @param position destination list
+         * @param x source list
+         * @param first iterator of source list
+         * @param last iterator of source list
          */
         void splice (iterator position, list& x, iterator first, iterator last) {
-            insert(position, first, last);
-            x.erase(first, last);
+            size_type i = 0;
+            for (iterator counter = first; counter != last; counter++, i++);
+            x._size -= i;
+            _size += i;
+            node_ptr tmpFirst = position.getNode();
+            node_ptr firstX = first.getNode();
+            node_ptr lastX = last.getNode();
+            node_ptr currLastX = lastX->prev;
+            firstX->prev->next = lastX;
+            lastX->prev = firstX->prev;
+            tmpFirst->prev->next = firstX;
+            firstX->prev = tmpFirst->prev;
+            tmpFirst->prev = currLastX;
+            currLastX->next = tmpFirst;
         };
 
         /**
@@ -695,8 +735,8 @@ namespace ft {
             for(; it != end(); it++) {
                 iterator it2 = it;
                 it2++;
-                if (*it == *it2)
-                    erase(it2);
+                    for (;*it == *it2; it2++)
+                        erase(it2);
             }
         };
 
@@ -709,12 +749,11 @@ namespace ft {
          */
         template <class BinaryPredicate>
         void unique(BinaryPredicate binary_pred) {
-            iterator it = begin();
-            for(; it != end(); it++) {
-                iterator it2 = it;
-                it2++;
-                if (binary_pred(*it, *it2))
-                    erase(it2);
+            for (iterator it = begin(), ite = end(); it != ite;) {
+                iterator tmp(it.getNode()->next);
+                for (;tmp != ite && binary_pred(*it, *tmp); tmp++);
+                if (++it != tmp)
+                    it = erase(it, tmp);
             }
         };
 
@@ -728,7 +767,7 @@ namespace ft {
         void merge(list& x) {
             if (&x == this)
                 return;
-            splice(end(), x.begin(), x.end());
+            splice(end(), x, x.begin(), x.end());
         };
 
         /**
@@ -741,18 +780,18 @@ namespace ft {
         void merge (list& x, Compare comp) {
             if (&x == this)
                 return;
-            iterator itr = begin();
+            iterator it = begin();
             iterator ite = end();
-            iterator itrX = x.begin();
+            iterator itX = x.begin();
             iterator iteX = x.end();
-            for (; itrX != iteX && itr != ite;) {
-                for (; comp(*itr, *itrX) && itr != ite; itr++);
-                splice(itr, x, itrX++);
+            while (it != ite && itX != iteX) {
+                while (it != ite && !comp(*it, *itX))
+                    it++;
+                itX++;
+                splice(it, x, iterator(itX.getNode()->prev));
             }
-            while (!x.empty())
-            {
-                splice(ite, x, itrX++);
-            }
+            if (itX != iteX)
+                splice(it, x, itX, iteX);
         };
 
         //sort code block
@@ -782,9 +821,27 @@ namespace ft {
                 iterator it2 = it;
                 it2++;
                 for (; it2 != end(); it2++) {
-                    if (comp(*it, it2))
+                    if (comp(*it2, *it))
                         ft::swap(*it, *it2);
                 }
+            }
+        };
+
+        /**
+         * Reverses the order of the elements in the list container.
+         */
+        void reverse() {
+            if (_size > 1) {
+                iterator ite = end();
+                node_ptr tmp;
+                for(iterator it = begin(); it != ite;) {
+                    tmp = it.getNode();
+                    ft::swap(tmp->next, tmp->prev);
+                    tmp = tmp->prev;
+                    it = iterator(tmp);
+                }
+                tmp = ite.getNode();
+                ft::swap(tmp->prev, tmp->next);
             }
         };
     };
