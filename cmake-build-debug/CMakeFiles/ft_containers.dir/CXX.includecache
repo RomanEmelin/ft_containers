@@ -8,15 +8,15 @@
 
 /Users/mwinter/ft_containers/Colors.hpp
 
-/Users/mwinter/ft_containers/List.hpp
+/Users/mwinter/ft_containers/list.hpp
 memory
 -
 iostream
 -
 
 /Users/mwinter/ft_containers/main.cpp
-List.hpp
-/Users/mwinter/ft_containers/List.hpp
+list.hpp
+/Users/mwinter/ft_containers/list.hpp
 list
 -
 iostream
@@ -30,5 +30,15 @@ ctime
 unistd.h
 -
 cmath
+-
+vector
+-
+vector.hpp
+/Users/mwinter/ft_containers/vector.hpp
+
+/Users/mwinter/ft_containers/vector.hpp
+memory
+-
+iostream
 -
 

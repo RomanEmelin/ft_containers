@@ -142,6 +142,33 @@ ft_containers/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ft_containers.dir/build.make CMakeFiles/ft_containers.dir/build
 .PHONY : ft_containers/fast
 
+list_tester.o: list_tester.cpp.o
+
+.PHONY : list_tester.o
+
+# target to build an object file
+list_tester.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ft_containers.dir/build.make CMakeFiles/ft_containers.dir/list_tester.cpp.o
+.PHONY : list_tester.cpp.o
+
+list_tester.i: list_tester.cpp.i
+
+.PHONY : list_tester.i
+
+# target to preprocess a source file
+list_tester.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ft_containers.dir/build.make CMakeFiles/ft_containers.dir/list_tester.cpp.i
+.PHONY : list_tester.cpp.i
+
+list_tester.s: list_tester.cpp.s
+
+.PHONY : list_tester.s
+
+# target to generate assembly for a file
+list_tester.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ft_containers.dir/build.make CMakeFiles/ft_containers.dir/list_tester.cpp.s
+.PHONY : list_tester.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -178,6 +205,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... ft_containers"
+	@echo "... list_tester.o"
+	@echo "... list_tester.i"
+	@echo "... list_tester.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
