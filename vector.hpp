@@ -7,6 +7,10 @@
 
 #include <memory>
 #include <iostream>
+#include <iterator>
+#include <type_traits>
+#include <math.h>
+
 
 namespace ft {
 
@@ -25,6 +29,8 @@ namespace ft {
     public:
         vector_iterator(): _ptr(nullptr) {};
 
+        vector_iterator(pointer ptr): _ptr(ptr) {};
+
         vector_iterator(const vector_iterator& a) {
             if (this == &a)
                 return;
@@ -36,7 +42,7 @@ namespace ft {
             return *this;
         };
 
-        ~vector_iterator();
+        ~vector_iterator() {};
 
         //bool operation
         bool operator==(const vector_iterator& a) {return _ptr == a._ptr;};
@@ -46,16 +52,17 @@ namespace ft {
         bool operator>(const vector_iterator& a) {return _ptr > a._ptr;};
         bool operator>=(const vector_iterator& a) {return _ptr >= a._ptr;};
         //arithmetic operations
-        vector_iterator operator+(difference_type ptr) const {return iterator(_ptr + ptr);};
+        vector_iterator operator+(difference_type ptr) const {return vector_iterator(_ptr + ptr);};
+        vector_iterator operator+(size_t n) const {return  vector_iterator(_ptr + n);};
         difference_type operator+(vector_iterator& a) {return _ptr + a._ptr;}
-        vector_iterator operator-(difference_type ptr) const {return iterator(_ptr - ptr);};
+        vector_iterator operator-(difference_type ptr) const {return vector_iterator(_ptr - ptr);};
         difference_type operator-(vector_iterator& a) {return _ptr - a._ptr;}
         vector_iterator &operator+=(difference_type &ptr) {_ptr += ptr; return *this;};
         vector_iterator &operator-=(difference_type &ptr) {_ptr -= ptr; return *this;};
         vector_iterator &operator++() {++_ptr; return *this;};
-        vector_iterator operator++(int) {vector_iterator tmp(*this); ++(*this); return tmp;};
+        vector_iterator operator++(int) {vector_iterator tmp(_ptr); ++_ptr; return tmp;};
         vector_iterator &operator--() {--_ptr; return *this;};
-        vector_iterator operator--(int) {vector_iterator tmp(*this); --(*this); return tmp;};
+        vector_iterator operator--(int) {vector_iterator tmp(_ptr); --_ptr; return tmp;};
 
         reference operator[](difference_type val) const {return _ptr[val];};
         reference operator*() {return *_ptr;};
@@ -77,6 +84,8 @@ namespace ft {
     public:
         reverse_vector_iterator(): _ptr(nullptr) {};
 
+        reverse_vector_iterator(pointer ptr): _ptr(ptr) {};
+
         reverse_vector_iterator(const reverse_vector_iterator& a) {
             if (this == &a)
                 return;
@@ -88,7 +97,7 @@ namespace ft {
             return *this;
         };
 
-        ~reverse_vector_iterator();
+        ~reverse_vector_iterator() {};
 
         //bool operation
         bool operator==(const reverse_vector_iterator& a) {return _ptr == a._ptr;};
@@ -98,16 +107,16 @@ namespace ft {
         bool operator>(const reverse_vector_iterator& a) {return _ptr > a._ptr;};
         bool operator>=(const reverse_vector_iterator& a) {return _ptr >= a._ptr;};
         //arithmetic operations
-        reverse_vector_iterator operator+(difference_type ptr) const {return iterator(_ptr + ptr);};
-        difference_type operator+(reverse_vector_iterator& a) {return _ptr + a._ptr;}
-        reverse_vector_iterator operator-(difference_type ptr) const {return iterator(_ptr - ptr);};
-        difference_type operator-(reverse_vector_iterator& a) {return _ptr - a._ptr;}
-        reverse_vector_iterator &operator+=(difference_type &ptr) {_ptr += ptr; return *this;};
-        reverse_vector_iterator &operator-=(difference_type &ptr) {_ptr -= ptr; return *this;};
-        reverse_vector_iterator &operator++() {++_ptr; return *this;};
-        reverse_vector_iterator operator++(int) {reverse_vector_iterator tmp(*this); ++(*this); return tmp;};
-        reverse_vector_iterator &operator--() {--_ptr; return *this;};
-        reverse_vector_iterator operator--(int) {reverse_vector_iterator tmp(*this); --(*this); return tmp;};
+        reverse_vector_iterator operator+(difference_type ptr) const {return reverse_vector_iterator(_ptr - ptr);};
+        difference_type operator+(reverse_vector_iterator& a) {return _ptr - a._ptr;}
+        reverse_vector_iterator operator-(difference_type ptr) const {return reverse_vector_iterator(_ptr + ptr);};
+        difference_type operator-(reverse_vector_iterator& a) {return _ptr + a._ptr;}
+        reverse_vector_iterator &operator+=(difference_type &ptr) {_ptr -= ptr; return *this;};
+        reverse_vector_iterator &operator-=(difference_type &ptr) {_ptr += ptr; return *this;};
+        reverse_vector_iterator &operator++() {--_ptr; return *this;};
+        reverse_vector_iterator operator++(int) {reverse_vector_iterator tmp(_ptr); --_ptr; return tmp;};
+        reverse_vector_iterator &operator--() {++_ptr; return *this;};
+        reverse_vector_iterator operator--(int) {reverse_vector_iterator tmp(_ptr); ++_ptr; return tmp;};
 
         reference operator[](difference_type val) const {return _ptr[val];};
         reference operator*() {return *_ptr;};
@@ -151,7 +160,9 @@ namespace ft {
          * @param alloc
          */
         explicit vector(const allocator_type& alloc = allocator_type()):
-        _array(nullptr), _allocator(alloc), _size(0), _capacity(0) {};
+        _array(nullptr), _allocator(alloc), _size(0), _capacity(0) {
+            _array = _allocator.allocate(0);
+        };
 
         /**
          * Filling constructor
@@ -174,17 +185,45 @@ namespace ft {
          * @param alloc
          */
         template <class InputIterator>
-        vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type()): _allocator(alloc) {
+        vector(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
+               typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0):
+               _array(nullptr), _allocator(alloc), _size(0), _capacity(0) {
             _array = _allocator.allocate(0);
             assign(first, last);
         };
+
+        vector &operator=(const vector& x) {
+            if (this == &x)
+                return ;
+            _allocator.deallocate(_array, _capacity);
+            _capacity = x._capacity;
+            _size = x._size;
+            _allocator = x._allocator;
+            _array = _allocator.allocate(_capacity);
+            for (size_type i = 0; i < _size; i++)
+                _allocator.construc(_array + i, *(x._array + i));
+            return *this;
+        }
+
+        /**
+         * Returns an iterator pointing to the first element in the vector
+         * @return An iterator to the beginning of the sequence container.
+         */
+        iterator begin() {return iterator(_array);};
+        const_iterator begin() const {return const_iterator(_array);};
+        iterator end() {return iterator(&_array[_size]);};
+        const_iterator end() const {return const_iterator(&_array[_size]);};
+        reverse_iterator rbegin() {return reverse_iterator (end());};
+        const_reverse_iterator rbegin() const {return const_reverse_iterator(end());};
+        reverse_iterator rend() {return reverse_iterator(begin());};
+        const_reverse_iterator rend() const {return const_reverse_iterator(begin());};
 
         /**
          * Removes all elements from the list container (which are destroyed),
          * and leaving the container with a size of 0.
          */
         void clear() {
-            while(_size--)
+            while(_size)
                 pop_back();
         };
 
@@ -204,8 +243,7 @@ namespace ft {
          */
         void assign(size_type n, const value_type& val) {
             clear();
-            while (n--)
-                push_back(val);
+            insert(begin(), n, val);
         }
 
         /**
@@ -215,15 +253,16 @@ namespace ft {
          * @param last
          */
         template <class InputIterator>
-        void assign (InputIterator first, InputIterator last) {
+        void assign (InputIterator first, InputIterator last,
+                     typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
             clear();
-
+            insert(begin(), first, last);
         };
 
         /**
          * Removes the last element in the vector, effectively reducing the container size by one.
          */
-        void pop_back() {_allocator.destroy(_array + (--_size));};
+        void pop_back() {_allocator.destroy(_array + --_size);};
 
         /**
          * Requests that the vector capacity be at least enough to contain n elements.
@@ -249,9 +288,7 @@ namespace ft {
          * Adds a new element at the end of the vector, after its current last element.
          */
         void push_back(const value_type& val) {
-            if (_size + 1 > _capacity)
-                reserve(_size + 1);
-            _array[_size++] = val;
+            insert(end(), 1, val);
         };
 
         /**
@@ -264,25 +301,61 @@ namespace ft {
 
         //insert code block
 
-
+        /**
+         *
+         * @param position Position in the vector where the new elements are inserted.
+         * @param val Value to be copied (or moved) to the inserted elements
+         * @return
+         */
         iterator insert(iterator position, const value_type& val) {
-            if (_size + 1 > _capacity)
-                reserve(_size + 1);
-            size_type pos = position.operator->() - _array;
-
+            size_type i = 0;
+            iterator it = begin();
+            for (;it + i != position && i < _size; i++);
+            if (_size  >= _capacity)
+                reserve(_size * ((1 + sqrt(5)) / 2));
+            _size++;
+            for (size_type j = _size - 1; j > i; j--)
+                _array[j] = _array[j - 1];
+            _array[i] = val;
+            return (iterator(&_array[i]));
         };
 
         void insert(iterator position, size_type n, const value_type& val) {
-            while (n--)
+            while(n--)
                 position = insert(position, val);
         };
 
         template<class InputIterator>
-        void insert(iterator position, InputIterator first, InputIterator last) {
-            for (; first != last; first++, position++)
-                insert(position, *first);
+        void insert(iterator position, InputIterator first, InputIterator last,
+                    typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
+            for (; first != last; first++)
+                position = insert(position, *first);
         }
 
-        reference operator[](size_type n) const{return _array[n];};
+        /**
+         * Returns whether the vector is empty (i.e. whether its size is 0).
+         * @return True if size is 0
+         */
+        bool empty() const {return 0 == _size;};
+
+        /**
+         *
+         * @param n New container size, expressed in number of elements.
+         * @param val Object whose content is copied to the added elements
+         */
+        void resize(size_type n, value_type val = value_type()) {
+            while (_size > n)
+                pop_back();
+            while (_size < n)
+                push_back(val);
+        }
+
+        reference front() {return _array[0];};
+        const_reference front() const {return _array[0];};
+        reference back() {return _array[_size - 1];};
+        const_reference back() const {return _array[_size - 1];}
+
+        reference operator[](size_type n) {return _array[n];};
+        const_reference operator[](size_type n) const {return _array[n];};
     };
 }
