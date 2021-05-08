@@ -99,6 +99,9 @@
 		<Unit filename="/Users/mwinter/ft_containers/queue.hpp">
 			<Option target="ft_containers"/>
 		</Unit>
+		<Unit filename="/Users/mwinter/ft_containers/stack.hpp">
+			<Option target="ft_containers"/>
+		</Unit>
 		<Unit filename="/Users/mwinter/ft_containers/vector.hpp">
 			<Option target="ft_containers"/>
 		</Unit>
