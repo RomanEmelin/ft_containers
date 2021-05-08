@@ -35,6 +35,7 @@ namespace ft {
             return *this;
         };
 
+        virtual ~queue() {};
         /**
          * Returns whether the queue is empty: i.e. whether its size is zero.
          * @return true if size is 0 and false if not
