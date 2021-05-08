@@ -153,6 +153,12 @@ namespace ft {
         size_type _size;
         size_type _capacity;
 
+        size_type distance(iterator first, iterator last) {
+            size_type dst = 0;
+            for (;first != last; first++, dst++);
+            return dst;
+        };
+
     public:
 
         /**
@@ -192,16 +198,25 @@ namespace ft {
             assign(first, last);
         };
 
-        vector &operator=(const vector& x) {
+        vector(const vector& x){
             if (this == &x)
                 return ;
+            *this = x;
+        }
+
+        virtual ~vector() {
+          if (_array)
+               clear();
+          _allocator.deallocate(_array, _capacity);
+          _capacity = 0;
+          _size = 0;
+        };
+
+        vector &operator=(const vector& x) {
             _allocator.deallocate(_array, _capacity);
-            _capacity = x._capacity;
-            _size = x._size;
             _allocator = x._allocator;
-            _array = _allocator.allocate(_capacity);
-            for (size_type i = 0; i < _size; i++)
-                _allocator.construc(_array + i, *(x._array + i));
+            _array = _allocator.allocate(0);
+            assign(x.begin(), x.end());
             return *this;
         }
 
@@ -211,8 +226,8 @@ namespace ft {
          */
         iterator begin() {return iterator(_array);};
         const_iterator begin() const {return const_iterator(_array);};
-        iterator end() {return iterator(&_array[_size]);};
-        const_iterator end() const {return const_iterator(&_array[_size]);};
+        iterator end() {return iterator(_array + _size);};
+        const_iterator end() const {return const_iterator(_array + _size);};
         reverse_iterator rbegin() {return reverse_iterator (end());};
         const_reverse_iterator rbegin() const {return const_reverse_iterator(end());};
         reverse_iterator rend() {return reverse_iterator(begin());};
@@ -302,33 +317,47 @@ namespace ft {
         //insert code block
 
         /**
-         *
+         * The vector is extended by inserting new elements before the element at the specified position,
+         * effectively increasing the container size by the number of elements inserted.
          * @param position Position in the vector where the new elements are inserted.
          * @param val Value to be copied (or moved) to the inserted elements
-         * @return
+         * @return An iterator that points to the first of the newly inserted elements.
          */
         iterator insert(iterator position, const value_type& val) {
-            size_type i = 0;
-            iterator it = begin();
-            for (;it + i != position && i < _size; i++);
-            if (_size  >= _capacity)
-                reserve(_size * ((1 + sqrt(5)) / 2));
+            size_type pos = distance(begin(), position);
+            if (_size + 1  > _capacity)
+                reserve(_size >= 0 && _size + 1 <= 8 ? _size + 1 : _size * 2);
             _size++;
-            for (size_type j = _size - 1; j > i; j--)
+            for (size_type j = _size - 1; j > pos; j--)
                 _array[j] = _array[j - 1];
-            _array[i] = val;
-            return (iterator(&_array[i]));
+            _array[pos] = val;
+            return iterator(_array + pos);
         };
 
+        /**
+         * The vector is extended by inserting new elements before the element at the specified position,
+         * effectively increasing the container size by the number of elements inserted.
+         * @param position Position in the vector where the new elements are inserted.
+         * @param n val Value to be copied (or moved) to the inserted elements
+         * @param val Value to be copied (or moved) to the inserted elements.
+         */
         void insert(iterator position, size_type n, const value_type& val) {
             while(n--)
                 position = insert(position, val);
         };
 
+        /**
+         * Iterators specifying a range of elements. Copies of the elements in the range [first,last)
+         * are inserted at position (in the same order).
+         * @tparam InputIterator
+         * @param position Position in the vector where the new elements are inserted.
+         * @param first
+         * @param last
+         */
         template<class InputIterator>
         void insert(iterator position, InputIterator first, InputIterator last,
                     typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
-            for (; first != last; first++)
+            for (; first != last; first++, position++)
                 position = insert(position, *first);
         }
 
@@ -350,6 +379,68 @@ namespace ft {
                 push_back(val);
         }
 
+        // at code block
+
+        /**
+         * Returns a reference to the element at position n in the vector.
+         * @param n index
+         * @return
+         */
+        reference at(size_type n) {
+            if (n >= _size)
+                throw std::out_of_range("Index out of range");
+            return _array[n];
+        };
+
+        /**
+         * Returns a reference to the element at position n in the vector.
+         * @param n index
+         * @return
+         */
+        const_reference at(size_type n) const {
+            if (n >= _size)
+                throw std::out_of_range("Index out of range");
+            return _array[n];
+        };
+
+        //erase code block
+
+        /**
+         * Removes from the vector either a single element (position)
+         * @param position Iterator pointing to a single element to be removed from the vector.
+         * @return An iterator pointing to the new location of the element that followed the last element erased by the function call
+         */
+        iterator erase(iterator position) {
+            iterator ret(position);
+            while (position != end() - 1)
+                *position = *(++position);
+            _size--;
+            return ret;
+        };
+
+        /**
+         *Removes from the vector either a range of elements ([first,last)).
+         * @param first
+         * @param last
+         * @return
+         */
+        iterator erase(iterator first, iterator last) {
+            while (first != last)
+                erase(--last);
+            return last;
+        };
+
+        /**
+         * Exchanges the content of the container by the content of x,
+         * which is another vector object of the same type. Sizes may differ.
+         * @param x Another vector container of the same type
+         */
+        void swap (vector& x) {
+            ft::swap(_array, x._array);
+            ft::swap(_size, x._size);
+            ft::swap(_capacity, x._capacity);
+        };
+
         reference front() {return _array[0];};
         const_reference front() const {return _array[0];};
         reference back() {return _array[_size - 1];};
@@ -358,4 +449,20 @@ namespace ft {
         reference operator[](size_type n) {return _array[n];};
         const_reference operator[](size_type n) const {return _array[n];};
     };
+    template <class T, class Alloc>
+    bool operator==(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {return lhs == rhs;};
+
+    template <class T, class Alloc>
+    bool operator!=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {return lhs != rhs;};
+    template <class T, class Alloc>
+    bool operator<(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {return lhs < rhs;};
+    template <class T, class Alloc>
+    bool operator<=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {return lhs <= rhs;};
+    template <class T, class Alloc>
+    bool operator>(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {return lhs > rhs;};
+    template <class T, class Alloc>
+    bool operator>=(const vector<T,Alloc>& lhs, const vector<T,Alloc>& rhs) {return lhs >= rhs;};
+
+    template <class T, class Alloc>
+    void swap (vector<T,Alloc>& x, vector<T,Alloc>& y) {x.swap(y);};
 }
