@@ -8,6 +8,8 @@
 #include <cmath>
 #include <vector>
 #include "vector.hpp"
+#include "queue.hpp"
+#include <queue>
 
 void list_tester();
 
@@ -163,6 +165,54 @@ int main() {
             stdV.swap(swapV);
             std::cout << MAGENTA << "Vector after swap" << std::endl;
             print_vector(stdV, myV);
+        }
+        else if (input == "queue") {
+            std::cout << GREEN <<"##############################################################" << std::endl;
+            std::cout << "###                     ";
+            std::cout << CYAN << "Queue tester" << GREEN"                       ###" << std::endl;
+            std::cout << "##############################################################\n" << RESET << std::endl;
+            std::cout << GREEN << "Create two integer queues using " << CYAN << "default constructor" << RESET << std::endl;
+            std::queue<int, std::list<int> > stdQ;
+            ft::queue<int, ft::list<int> > myQ;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".empty() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart queue .empty(): " << CYAN << (stdQ.empty() ? "true" : "false") << std::endl;
+            std::cout << GREEN << "My queue .empty(): " << CYAN << (myQ.empty() ? "true" : "false") << RESET << std::endl;
+            for (int i = 0; i < 10; i++) {
+                int g = rand() % 10;
+                stdQ.push(g);
+                myQ.push(g);
+            }
+            std::cout << GREEN << "Standart queue .empty(): " << CYAN << (stdQ.empty() ? "true" : "false") << std::endl;
+            std::cout << GREEN << "My queue .empty(): " << CYAN << (myQ.empty() ? "true" : "false") << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".size() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart queue size: " << CYAN << stdQ.size() << std::endl;
+            std::cout << GREEN << "My queue size: " << CYAN << myQ.size() << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".front() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart queue front: " << CYAN << stdQ.front() << std::endl;
+            std::cout << GREEN << "My queue front: " << CYAN << myQ.front() << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".back() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart queue back: " << CYAN << stdQ.back() << std::endl;
+            std::cout << GREEN << "My queue back: " << CYAN << myQ.back() << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".push(124) " << RED << "function: " << std::endl;
+            stdQ.push(124);
+            myQ.push(124);
+            std::cout << GREEN << "Standart queue back: " << CYAN << stdQ.back() << std::endl;
+            std::cout << GREEN << "My queue back: " << CYAN << myQ.back() << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".pop() " << RED << "function: " << std::endl;
+            std::cout << YELLOW << "Before .pop():" << std::endl;
+            std::cout << GREEN << "Standart queue front: " << CYAN << stdQ.front() << std::endl;
+            std::cout << GREEN << "My queue front: " << CYAN << myQ.front() << RESET << std::endl;
+            stdQ.pop();
+            myQ.pop();
+            std::cout << YELLOW << "after .pop():" << std::endl;
+            std::cout << GREEN << "Standart queue front: " << CYAN << stdQ.front() << std::endl;
+            std::cout << GREEN << "My queue front: " << CYAN << myQ.front() << RESET << std::endl;
         }
         else if (input == "exit")
             return 0;
