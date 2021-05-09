@@ -39,10 +39,16 @@ queue.hpp
 /Users/mwinter/ft_containers/queue.hpp
 queue
 -
+stack
+-
+stack.hpp
+/Users/mwinter/ft_containers/stack.hpp
 
 /Users/mwinter/ft_containers/queue.hpp
 list.hpp
 /Users/mwinter/ft_containers/list.hpp
+
+/Users/mwinter/ft_containers/stack.hpp
 
 /Users/mwinter/ft_containers/vector.hpp
 memory

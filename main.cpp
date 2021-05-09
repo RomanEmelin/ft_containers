@@ -10,6 +10,8 @@
 #include "vector.hpp"
 #include "queue.hpp"
 #include <queue>
+#include <stack>
+#include "stack.hpp"
 
 void list_tester();
 
@@ -213,6 +215,50 @@ int main() {
             std::cout << YELLOW << "after .pop():" << std::endl;
             std::cout << GREEN << "Standart queue front: " << CYAN << stdQ.front() << std::endl;
             std::cout << GREEN << "My queue front: " << CYAN << myQ.front() << RESET << std::endl;
+        }
+        else if (input == "stack") {
+            std::cout << GREEN <<"##############################################################" << std::endl;
+            std::cout << "###                     ";
+            std::cout << CYAN << "Stack tester" << GREEN"                       ###" << std::endl;
+            std::cout << "##############################################################\n" << RESET << std::endl;
+            std::cout << GREEN << "Create two integer Stacks using " << CYAN << "default constructor" << RESET << std::endl;
+            std::stack<int, std::list<int> > stdS;
+            ft::stack<int, ft::list<int> > myS;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".empty() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart stack .empty(): " << CYAN << (stdS.empty() ? "true" : "false") << std::endl;
+            std::cout << GREEN << "My stack .empty(): " << CYAN << (myS.empty() ? "true" : "false") << RESET << std::endl;
+            for (int i = 0; i < 10; i++) {
+                int g = rand() % 10;
+                stdS.push(g);
+                myS.push(g);
+            }
+            std::cout << GREEN << "Standart stack .empty(): " << CYAN << (stdS.empty() ? "true" : "false") << std::endl;
+            std::cout << GREEN << "My stack .empty(): " << CYAN << (myS.empty() ? "true" : "false") << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".size() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart stack size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My stack size: " << CYAN << myS.size() << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".top() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart stack top: " << CYAN << stdS.top() << std::endl;
+            std::cout << GREEN << "My stack top: " << CYAN << myS.top() << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".push(124) " << RED << "function: " << std::endl;
+            stdS.push(124);
+            myS.push(124);
+            std::cout << GREEN << "Standart stack top: " << CYAN << stdS.top() << std::endl;
+            std::cout << GREEN << "My stack top: " << CYAN << myS.top() << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".pop() " << RED << "function: " << std::endl;
+            std::cout << YELLOW << "Before .pop():" << std::endl;
+            std::cout << GREEN << "Standart stack front: " << CYAN << stdS.top() << std::endl;
+            std::cout << GREEN << "My stack front: " << CYAN << myS.top() << RESET << std::endl;
+            stdS.pop();
+            myS.pop();
+            std::cout << YELLOW << "after .pop():" << std::endl;
+            std::cout << GREEN << "Standart stack top: " << CYAN << stdS.top() << std::endl;
+            std::cout << GREEN << "My stack top: " << CYAN << myS.top() << RESET << std::endl;
         }
         else if (input == "exit")
             return 0;

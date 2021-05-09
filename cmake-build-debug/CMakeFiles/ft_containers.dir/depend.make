@@ -9,5 +9,6 @@ CMakeFiles/ft_containers.dir/main.cpp.o: ../Colors.hpp
 CMakeFiles/ft_containers.dir/main.cpp.o: ../list.hpp
 CMakeFiles/ft_containers.dir/main.cpp.o: ../main.cpp
 CMakeFiles/ft_containers.dir/main.cpp.o: ../queue.hpp
+CMakeFiles/ft_containers.dir/main.cpp.o: ../stack.hpp
 CMakeFiles/ft_containers.dir/main.cpp.o: ../vector.hpp
 

@@ -96,6 +96,9 @@
 		<Unit filename="/Users/mwinter/ft_containers/main.cpp">
 			<Option target="ft_containers"/>
 		</Unit>
+		<Unit filename="/Users/mwinter/ft_containers/map.hpp">
+			<Option target="ft_containers"/>
+		</Unit>
 		<Unit filename="/Users/mwinter/ft_containers/queue.hpp">
 			<Option target="ft_containers"/>
 		</Unit>
