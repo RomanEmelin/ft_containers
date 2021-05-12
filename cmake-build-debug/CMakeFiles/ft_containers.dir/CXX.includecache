@@ -43,6 +43,20 @@ stack
 -
 stack.hpp
 /Users/mwinter/ft_containers/stack.hpp
+map
+-
+map.hpp
+/Users/mwinter/ft_containers/map.hpp
+
+/Users/mwinter/ft_containers/map.hpp
+list.hpp
+/Users/mwinter/ft_containers/list.hpp
+iterator
+-
+memory
+-
+utility
+-
 
 /Users/mwinter/ft_containers/queue.hpp
 list.hpp

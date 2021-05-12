@@ -12,6 +12,8 @@
 #include <queue>
 #include <stack>
 #include "stack.hpp"
+#include <map>
+#include "map.hpp"
 
 void list_tester();
 
@@ -259,6 +261,27 @@ int main() {
             std::cout << YELLOW << "after .pop():" << std::endl;
             std::cout << GREEN << "Standart stack top: " << CYAN << stdS.top() << std::endl;
             std::cout << GREEN << "My stack top: " << CYAN << myS.top() << RESET << std::endl;
+        }
+        else if(input == "map") {
+            std::cout << GREEN <<"##############################################################" << std::endl;
+            std::cout << "###                     ";
+            std::cout << CYAN << "Map tester" << GREEN"                         ###" << std::endl;
+            std::cout << "##############################################################\n" << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << GREEN << "Create two integer, string maps using " << CYAN << "default constructor" << RESET << std::endl;
+            std::map<int, std::string> stdM;
+            ft::map<int, std::string> myM;
+            std::map<int, std::string>::iterator itm = stdM.begin();
+            ft::map<int, std::string>::iterator mit = myM.begin();
+            std::cout << RED << "St First: " << CYAN << itm->first << RED << ", st Second: " << CYAN << itm->second << std::endl;
+            std::cout << RED << "My First: " << CYAN << mit->first << RED << ", my Second: " << CYAN << mit->second << std::endl;
+//            std::cout << (stdM.insert(std::pair<int, std::string>(1, "l")).second ? "true" : "false") << std::endl;
+//            std::cout << stdM.begin()->first << " " << stdM.begin()->second << std::endl;
+//            stdM.insert(std::pair<int, std::string>(1, "b"));
+//            std::cout << (stdM.insert(std::pair<int, std::string>(1, "l")).second ? "true" : "false") << std::endl;
+//            std::cout << stdM.begin()->first << " " << stdM.begin()->second << std::endl ;
+//            itm++;
+            myM.insert(std::pair<int, std::string>(2, "l"));
         }
         else if (input == "exit")
             return 0;

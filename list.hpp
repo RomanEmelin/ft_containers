@@ -29,7 +29,7 @@ namespace ft {
      * @tparam T
      */
     template<class T>
-class ListIterator {
+    class ListIterator {
 
     public:
         typedef T value_type;
