@@ -282,6 +282,7 @@ int main() {
 //            std::cout << stdM.begin()->first << " " << stdM.begin()->second << std::endl ;
 //            itm++;
             myM.insert(std::pair<int, std::string>(2, "l"));
+            std::cout << "Check insert: " << myM.find(2)
         }
         else if (input == "exit")
             return 0;

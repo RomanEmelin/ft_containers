@@ -44,7 +44,7 @@ namespace ft {
         };
 
         MapIterator operator++() {
-            _ptr = getNext();
+            _ptr = getNext(_ptr);
             return *this;
         };
 
@@ -55,7 +55,7 @@ namespace ft {
         };
 
         MapIterator operator--() {
-            _ptr = getPrev();
+            _ptr = getPrev(_ptr);
             return *this;
         };
 
@@ -139,7 +139,7 @@ namespace ft {
         };
 
         ReverseMapIterator operator++() {
-            _ptr = getPrev();
+            _ptr = getPrev(_ptr);
             return *this;
         };
 
@@ -150,7 +150,7 @@ namespace ft {
         };
 
         ReverseMapIterator operator--() {
-            _ptr = getNext();
+            _ptr = getNext(_ptr);
             return *this;
         };
 
@@ -263,7 +263,7 @@ namespace ft {
             _end->color = _BLACK;
         };
 
-        node_pointer createNode(value_type val, node_pointer parent = nullptr, int color = _RED){
+        node_pointer createNode(value_type val, node_pointer parent, int color = _RED){
             node_pointer newElem = _alloc_node.allocate(1);
             newElem->parent = parent;
             newElem->right = nullptr;
@@ -317,8 +317,31 @@ namespace ft {
         std::pair<iterator, bool> insert(const value_type& val) {
             if (_root) {
                 _root = createNode(val, nullptr, _BLACK);
+                _root->right = _end;
+                _end->parent = _root;
+                _end->left = _end;
             }
+            else if (find(val.first) == end())
+                return std::pair<iterator, bool>(iterator(_end), false);
             return std::pair<iterator, bool>(iterator(_root), true);
+        };
+
+        /**
+         * Searches the container for an element with a key equivalent to k and returns an iterator to it if found,
+         * otherwise it returns an iterator to end().
+         * @param k it is a key
+         * @return An iterator to the element, if an element with specified key is found, or end otherwise.
+         */
+        iterator find (const key_type& k) {
+            iterator it = begin();
+            for(iterator ite = end(); it != end() && it->first != k; it++);
+            return it;
+        };
+
+        const_iterator find (const key_type& k) const {
+            const_iterator it = begin();
+            for(const_iterator ite = end(); it != end() && it->first != k; it++);
+            return it;
         };
     };
 }
