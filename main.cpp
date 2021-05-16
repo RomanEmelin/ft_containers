@@ -263,26 +263,85 @@ int main() {
             std::cout << GREEN << "My stack top: " << CYAN << myS.top() << RESET << std::endl;
         }
         else if(input == "map") {
-            std::cout << GREEN <<"##############################################################" << std::endl;
+            std::cout << GREEN << "##############################################################" << std::endl;
             std::cout << "###                     ";
             std::cout << CYAN << "Map tester" << GREEN"                         ###" << std::endl;
             std::cout << "##############################################################\n" << RESET << std::endl;
-            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
-            std::cout << GREEN << "Create two integer, string maps using " << CYAN << "default constructor" << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << GREEN << "Create two integer, string maps using " << CYAN << "default constructor" << RESET
+                      << std::endl;
             std::map<int, std::string> stdM;
             ft::map<int, std::string> myM;
             std::map<int, std::string>::iterator itm = stdM.begin();
-            ft::map<int, std::string>::iterator mit = myM.begin();
-            std::cout << RED << "St First: " << CYAN << itm->first << RED << ", st Second: " << CYAN << itm->second << std::endl;
-            std::cout << RED << "My First: " << CYAN << mit->first << RED << ", my Second: " << CYAN << mit->second << std::endl;
-//            std::cout << (stdM.insert(std::pair<int, std::string>(1, "l")).second ? "true" : "false") << std::endl;
-//            std::cout << stdM.begin()->first << " " << stdM.begin()->second << std::endl;
-//            stdM.insert(std::pair<int, std::string>(1, "b"));
-//            std::cout << (stdM.insert(std::pair<int, std::string>(1, "l")).second ? "true" : "false") << std::endl;
-//            std::cout << stdM.begin()->first << " " << stdM.begin()->second << std::endl ;
-//            itm++;
-            myM.insert(std::pair<int, std::string>(2, "l"));
-            std::cout << "Check insert: " << myM.find(2)
+            ft::map<int, std::string>::iterator mitm = myM.begin();
+            std::cout << GREEN << "St First: " << CYAN << itm->first << RED << ", st Second: " << CYAN << itm->second
+                      << std::endl;
+            std::cout << GREEN << "My First: " << CYAN << mitm->first << RED << ", my Second: " << CYAN << mitm->second
+                      << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+            std::cout << YELLOW << "Create two integer, string maps using " << CYAN << "range constructor" << RESET
+                      << std::endl;
+            for (int i = 1; i < 10; i++) {
+                int r = rand() % 15;
+                stdM.insert(std::pair<int, std::string>(r, "l"));
+                myM.insert(std::pair<int, std::string>(r, "l"));
+            }
+            std::map<int, std::string> stdM2(stdM.begin(), stdM.end());
+            ft::map<int, std::string> myM2(myM.begin(), myM.end());
+            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+            std::cout << GREEN << "St2 size: " << CYAN << stdM2.size() << std::endl;
+            std::cout << GREEN << "My2 size: " << CYAN << myM2.size() << std::endl;
+
+            std::cout << RED << " stdM: " << " " << CYAN;
+            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
+                std::cout << it->first << " ";
+            std::cout << std::endl;
+            std::cout << RED << " stdM2: " << " " << CYAN;
+            for (std::map<int, std::string>::iterator it = stdM2.begin(), ite = stdM2.end(); it != ite; it++)
+                std::cout << it->first << " ";
+            std::cout << std::endl;
+            std::cout << RED << " myM: " << " " << CYAN;
+            for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
+                std::cout << mit->first << " ";
+            std::cout << std::endl;
+            std::cout << RED << " myM2: " << " " << CYAN;
+            for (ft::map<int, std::string>::iterator mit = myM2.begin(), ite = myM2.end(); mit != ite; mit++)
+                std::cout << mit->first << " ";
+            std::cout << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".max_size() " << RED << "function: " << std::endl;
+            for (int i = 1; i < 10; i++) {
+                int r = rand() % 15;
+                stdM.insert(std::pair<int, std::string>(r, "l"));
+                myM.insert(std::pair<int, std::string>(r, "l"));
+            }
+            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
+                std::cout << it->first << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "Std insert: " << " " << CYAN;
+            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
+                std::cout << it->first << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My insert: " << " " << CYAN;
+            for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
+                std::cout << mit->first << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".max_size() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "St max size: " << CYAN << stdM.max_size() << std::endl;
+            std::cout << GREEN << "My max size: " << CYAN << myM.max_size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".empty() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart map .empty(): " << CYAN << (stdM.empty() ? "true" : "false") << std::endl;
+            std::cout << GREEN << "My map .empty(): " << CYAN << (myM.empty() ? "true" : "false") << RESET << std::endl;
         }
         else if (input == "exit")
             return 0;
