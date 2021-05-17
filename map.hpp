@@ -272,8 +272,9 @@ namespace ft {
          * @return node constrains maximal key
          */
         node_pointer getMaxFromIt(node_pointer node) {
-            for (;node && (node->right && node->right != _end); node = node->right);
-            return node;
+            node_pointer tmp = node;
+            for (;tmp && (tmp->right && tmp->right != _end); tmp = tmp->right);
+            return tmp;
         };
 
         /**
@@ -281,8 +282,9 @@ namespace ft {
          * @return node constrains minimal key
          */
         node_pointer getMinFromIt(node_pointer node) {
-            for (;node && (node->left && node->left != _begin); node = node->left);
-            return node;
+            node_pointer tmp = node;
+            for (;tmp && (tmp->left && tmp->left != _begin); tmp = tmp->left);
+            return tmp;
         };
 
         /**
@@ -430,6 +432,99 @@ namespace ft {
             balanceRBTree(grandParent);
         };
 
+        bool hasOneChild(node_pointer node) {
+            return (node->right && !node->left) || (!node->right && node->left);
+        };
+
+        /**
+         * Check node has red child or not
+         * @param node
+         * @return true if has red child, false if not
+         */
+        bool hasRedChild(node_pointer node) {
+            return (node->right && node->right->color == _RED) ||
+                    (node->left && node->left->color == _RED);
+        };
+
+        /**
+         * find node that replaces a deleted node in BST
+         * @param node
+         * @return
+         */
+        node_pointer getReplacer(node_pointer node) {
+            if (node && node->left && node->right)
+                return getMinFromIt(node->right);
+            if (!node->left && !node->right)
+                return nullptr;
+            if (node->left)
+                return node->left;
+            return node->right;
+        };
+
+        /**
+         * Fixes the tree if there was a case when deleting an element
+         * @param node
+         */
+        void fixDoubleBlack(node_pointer node) {
+            if (node == _root)
+                return;
+            node_pointer brother = getBrother(node);
+            node_pointer parent = node->parent;
+            if (!brother)
+                fixDoubleBlack(parent);
+            else {
+                if (brother->color == _RED) {
+                    parent->color = _RED;
+                    brother->color = _BLACK;
+                    if (brother->parent->left == brother)
+                        rightRotation(parent);
+                    else
+                        leftRotation(parent);
+                    fixDoubleBlack(node);
+                }
+                else {
+                    if (hasRedChild(brother)) {
+                        if (brother->left && brother->left->color == _RED) {
+                            if (brother->parent->left == brother) {
+                                brother->left->color = brother->color;
+                                brother->color = parent->color;
+                                rightRotation(parent);
+                            }
+                            else {
+                                brother->left->color = parent->color;
+                                rightRotation(brother);
+                                leftRotation(parent);
+                            }
+                        }
+                        else {
+                            if (brother->parent->left == brother) {
+                                brother->right->color = parent->color;
+                                leftRotation(brother);
+                                rightRotation(parent);
+                            }
+                            else {
+                                brother->right->color = brother->color;
+                                brother->color = parent->color;
+                                leftRotation(parent);
+                            }
+                        }
+                        parent->color = _BLACK;
+                    }
+                    else {
+                        brother->color = _RED;
+                        if (parent->color == _BLACK)
+                            fixDoubleBlack(parent);
+                        else
+                            parent->color = _BLACK;
+                    }
+                }
+            }
+        };
+
+        bool areBlack(node_pointer node1, node_pointer node2) {
+            return (!node1 || node1->color == _BLACK) && (!node2 || node2->color == _BLACK);
+        };
+
         /**
          * Balancing the tree with turns additionally depending on the case
          * @param node rotation start point
@@ -508,6 +603,57 @@ namespace ft {
             leftNode->right = node;
             node->parent = leftNode;
         };
+
+        /**
+         * Delete node from tree
+         * @param delNode node to delete from tree
+         */
+        void deleteFromTree(node_pointer delNode) {
+            node_pointer nodeForReplace = getReplacer(delNode);
+            node_pointer parent = delNode->parent;
+            if (!nodeForReplace) {
+                if (delNode == _root)
+                    _root =  nullptr;
+                else {
+                    if (areBlack(delNode, nodeForReplace))
+                        fixDoubleBlack(delNode);
+                    else {
+                        node_pointer brother = getBrother(delNode);
+                        if (brother)
+                            brother->color = _RED;
+                    }
+                    if (delNode->parent->left == delNode)
+                        parent->left = nullptr;
+                    else
+                        parent->right = nullptr;
+                }
+                deleteNode(delNode);
+                return;
+            }
+            if (!delNode->left || !delNode->right) {
+                if (delNode == _root) {
+                    delNode->data = nodeForReplace->data;
+                    delNode->right = delNode->left = nullptr;
+                    deleteNode(nodeForReplace);
+                }
+                else {
+                    if (delNode->parent->left == delNode)
+                        parent->left = nodeForReplace;
+                    else
+                        parent->right = nodeForReplace;
+                    deleteNode(delNode);
+                    nodeForReplace->parent = parent;
+                    if (areBlack(delNode, nodeForReplace))
+                        fixDoubleBlack(nodeForReplace);
+                    else
+                        nodeForReplace->color = _BLACK;
+                }
+                return;
+            }
+            ft::swap(nodeForReplace->data, delNode->data);
+            deleteFromTree(nodeForReplace);
+        };
+
     public:
 
         /**
@@ -551,6 +697,16 @@ namespace ft {
             _alloc_value = x._alloc_value;
             _comp = x._comp;
             insert(x.begin(), x.end());
+        };
+
+        ~map() {
+            clear();
+           // _alloc_node.deallocate(_begin, 1);
+           // _alloc_node.deallocate(_end, 1);
+        };
+
+        mapped_type &operator[](const key_type &key) {
+            return insert(value_type(key, mapped_type())).first->second;
         };
 
         /**
@@ -703,57 +859,56 @@ namespace ft {
          * Removes all elements from the map container (which are destroyed), leaving the container with a size of 0.
          */
         void clear() {
-            while (_size)
-                erase(begin());
+            erase(begin(), end());
+        };
+        void unlink() {
+            _begin->parent->left = nullptr;
+            _end->parent->right = nullptr;
+        }
+        /**
+         * Removes from the map container either a single element by position
+         * @param position
+         */
+        void erase (iterator position) {
+            node_pointer delNode = position.getNode();
+            unlink();
+            deleteFromTree(delNode);
+            relinkTreeEnd();
         };
 
-        bool hasOneChild(node_pointer node) {
-            return (node->right && !node->left) || (!node->right && node->left);
+        /**
+         * Removes from the map container either a single element by key
+         * @param k key
+         * @return
+         */
+        size_type erase (const key_type& k) {
+            iterator it = find(k);
+            if (it == end())
+                return 0;
+            erase(it);
+            return 1;
         };
 
-        bool hasTwoChildren(node_pointer node) {
-            return node->right && node->left;
+        /**
+         * Removes from the map container a range of elements ([first,last)).
+         * @param first
+         * @param last
+         */
+        void erase (iterator first, iterator last) {
+            for (; first != last; first++)
+                erase(first);
         };
 
-
-        node_pointer getChild(node_pointer node) {
-            if (node->right)
-                return node->right;
-            return node->left;
+        /**
+         * Exchanges the content of the container by the content of x,
+         * which is another map of the same type. Sizes may differ.
+         * @param x Another map container of the same type as this
+         */
+        void swap (map& x) {
+            ft::swap(_size, x._size);
+            ft::swap(_root, x._root);
+            ft::swap(_begin, x._begin);
+            ft::swap(_end, x._end);
         };
-
-//        /**
-//         * Removes from the map container either a single element by position
-//         * @param position
-//         */
-//        void erase (iterator position) {
-//            node_pointer tmp = position.getNode();
-//            if (!tmp->right && !tmp->left) {
-//                tmp->parent = nullptr;
-//                deleteNode(tmp);
-//            }
-//            else if (hasOneChild(tmp)) {
-//                tmp->parent = getChild(tmp);
-//                deleteNode(tmp);
-//            }
-//        };
-//
-//        /**
-//         * Removes from the map container either a single element by key
-//         * @param k key
-//         * @return
-//         */
-//        size_type erase (const key_type& k) {
-//
-//        };
-//
-//        /**
-//         * Removes from the map container a range of elements ([first,last)).
-//         * @param first
-//         * @param last
-//         */
-//        void erase (iterator first, iterator last) {
-//
-//        };
     };
 }
