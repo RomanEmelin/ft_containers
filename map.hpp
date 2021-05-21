@@ -410,11 +410,11 @@ namespace ft {
         };
 
         ~map() {
-//            clear();
-//            _alloc_node.destroy(_end);
-//            _alloc_node.destroy(_begin);
-//            _alloc_node.deallocate(_begin, 1);
-//            _alloc_node.deallocate(_end, 1);
+            clear();
+            _alloc_node.destroy(_end);
+            _alloc_node.destroy(_begin);
+            _alloc_node.deallocate(_begin, 1);
+            _alloc_node.deallocate(_end, 1);
         };
 
         mapped_type &operator[](const key_type &key) {
@@ -668,11 +668,96 @@ namespace ft {
             v->parent = u->parent;
         };
 
+        void fixTreeAfterDeletion(node_pointer x) {
+            node_pointer s;
+            while (x != _root && x->color == 0) {
+                if (x == x->parent->left) {
+                    s = x->parent->right;
+                    if (s && s->color == _RED) {
+                        s->color = _BLACK;
+                        x->parent->color = _RED;
+                        leftRotation(x->parent);
+                        s = x->parent->right;
+                    }
+                    if (s->left->color == _BLACK && s->right->color == _BLACK) {
+                        s->color = _RED;
+                        x = x->parent;
+                    }
+                    else {
+                        if (s->right->color == _BLACK) {
+                            s->left->color = _BLACK;
+                            s->color = _RED;
+                            rightRotation(s);
+                            s = x->parent->right;
+                        }
+                        s->color = x->parent->color;
+                        x->parent->color = _BLACK;
+                        s->right->color = _BLACK;
+                        leftRotation(x->parent);
+                        x = _root;
+                    }
+                }
+                else {
+                    s = x->parent->left;
+                    if (s && s->color == _RED) {
+                        s->color = _BLACK;
+                        x->parent->color = _RED;
+                        rightRotation(x->parent);
+                        s = x->parent->left;
+                    }
+                    if (s->right->color == _BLACK && s->left->color == _BLACK) {
+                        s->color = _RED;
+                        x = x->parent;
+                    }
+                    else {
+                        if (s->left->color == _BLACK) {
+                            s->right->color = 0;
+                            s->color = 1;
+                            leftRotation(s);
+                            s = x->parent->left;
+                        }
+                        s->color = x->parent->color;
+                        x->parent->color = _BLACK;
+                        s->left->color = _BLACK;
+                        rightRotation(x->parent);
+                        x = _root;
+                    }
+                }
+            }
+            x->color = _BLACK;
+        };
+
         void deleteFromTree(node_pointer node) {
             node_pointer tmp = node;
             node_pointer x;
             int saveColor = node->color;
-
+            if (!node->left) {
+                x = node->right;
+                transplant(node, node->right);
+            }
+            else if (!node->right) {
+                x = node->left;
+                transplant(node, node->left);
+            }
+            else {
+                tmp = getMinFromIt(node->right);
+                saveColor = tmp->color;
+                x = tmp->right;
+                if (tmp->parent == node)
+                    x->parent = tmp;
+                else {
+                    transplant(tmp, tmp->right);
+                    tmp->right = node->right;
+                    tmp->right->parent = tmp;
+                }
+                transplant(node, tmp);
+                tmp->left = node->left;
+                tmp->left->parent = tmp;
+                tmp->color = node->color;
+            }
+            deleteNode(node);
+            if (saveColor == _BLACK)
+                fixTreeAfterDeletion(x);
         };
 
         /**

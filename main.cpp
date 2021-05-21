@@ -354,14 +354,14 @@ int main() {
             std::cout << std::endl;
             stdM.erase(++(stdM.begin()));
             myM.erase(++(myM.begin()));
-//            std::cout << GREEN << "Std map: " << " " << CYAN;
-//            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
-//                std::cout << it->first << " ";
-//            std::cout << std::endl;
-//            std::cout << GREEN << "My map: " << " " << CYAN;
-//            for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
-//                std::cout << mit->first << " ";
-//            std::cout << std::endl;
+            std::cout << GREEN << "Std map: " << " " << CYAN;
+            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
+                std::cout << it->first << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My map: " << " " << CYAN;
+            for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
+                std::cout << mit->first << " ";
+            std::cout << std::endl;
 //            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
 //            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
 //            //stdM.clear();
