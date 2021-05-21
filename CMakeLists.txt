@@ -11,4 +11,4 @@ include_directories(/ /Users/mwinter/ft_containers)
 
 add_executable(ft_containers
         main.cpp
-        Colors.hpp vector.hpp list_tester.cpp list.hpp queue.hpp stack.hpp map.hpp)
+        Colors.hpp vector.hpp list_tester.cpp list.hpp queue.hpp stack.hpp map.hpp tester.h)

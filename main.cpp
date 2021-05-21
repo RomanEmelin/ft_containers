@@ -281,6 +281,8 @@ int main() {
                       << std::endl;
             std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
             std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
             std::cout << YELLOW << "Create two integer, string maps using " << CYAN << "range constructor" << RESET
                       << std::endl;
             for (int i = 1; i < 10; i++) {
@@ -313,22 +315,19 @@ int main() {
             std::cout << std::endl;
             std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
                       << std::endl;
-            std::cout << RED << "Testing " << CYAN << ".max_size() " << RED << "function: " << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".insert(const value_type &val) " << RED << "function: " << std::endl;
             for (int i = 1; i < 10; i++) {
                 int r = rand() % 15;
                 stdM.insert(std::pair<int, std::string>(r, "l"));
                 myM.insert(std::pair<int, std::string>(r, "l"));
             }
-            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
-                std::cout << it->first << " ";
-            std::cout << std::endl;
             std::cout << GREEN << "Std insert: " << " " << CYAN;
             for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
                 std::cout << it->first << " ";
             std::cout << std::endl;
             std::cout << GREEN << "My insert: " << " " << CYAN;
-            for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
-                std::cout << mit->first << " ";
+            for (ft::map<int, std::string>::iterator it = myM.begin(), ite = myM.end(); it != ite; it++)
+                std::cout << it->first << " ";
             std::cout << std::endl;
             std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
             std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
@@ -355,26 +354,27 @@ int main() {
             std::cout << std::endl;
             stdM.erase(++(stdM.begin()));
             myM.erase(++(myM.begin()));
-            std::cout << GREEN << "Std map: " << " " << CYAN;
-            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
-                std::cout << it->first << " ";
-            std::cout << std::endl;
-            std::cout << GREEN << "My map: " << " " << CYAN;
-            for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
-                std::cout << mit->first << " ";
-            std::cout << std::endl;
-            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
-            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
-            stdM.clear();
-            myM.clear();
-            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
-            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
-            std::cout << "CHeck: " << stdM.erase(1) << std::endl;
-            std::cout << "CHeck2: " << myM.erase(1) << std::endl;
-            stdM[66] = "dd";
-            myM[66] = "gg";
-            std::cout << "stdM: " << stdM[66] << std::endl;
-            std::cout << "myMap: " << myM[66] << std::endl;
+//            std::cout << GREEN << "Std map: " << " " << CYAN;
+//            for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
+//                std::cout << it->first << " ";
+//            std::cout << std::endl;
+//            std::cout << GREEN << "My map: " << " " << CYAN;
+//            for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
+//                std::cout << mit->first << " ";
+//            std::cout << std::endl;
+//            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
+//            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+//            //stdM.clear();
+//            //myM.clear();
+//            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
+//            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+//            std::cout << "CHeck: " << stdM.erase(1) << std::endl;
+//            std::cout << "CHeck2: " << myM.erase(1) << std::endl;
+//            stdM[66] = "dd";
+//            myM[66] = "gg";
+//            std::cout << "stdM: " << stdM[66] << std::endl;
+//            std::cout << "myMap: " << myM[66] << std::endl;
+
         }
         else if (input == "exit")
             return 0;

@@ -190,24 +190,24 @@ namespace ft {
     class map {
 
     public:
-        typedef Key                                                      key_type;
-        typedef T                                                        mapped_type;
-        typedef std::pair<const key_type, mapped_type>                   value_type;
-        typedef Alloc                                                    allocator_type;
-        typedef Compare                                                  key_compare;
-        typedef value_type*                                              pointer;
-        typedef value_type&                                              reference;
-        typedef const value_type*                                        const_pointer;
-        typedef const value_type&                                        const_reference;
-        typedef size_t                                                   size_type;
-        typedef MapIterator<value_type>                                  iterator;
-        typedef MapIterator<const value_type>                            const_iterator;
-        typedef ReverseMapIterator<value_type>                           reverse_iterator;
-        typedef ReverseMapIterator<const value_type>                     const_reverse_iterator;
-        typedef rbNode<value_type>                                       rbnode;
-        typedef rbNode<value_type>*                                      node_pointer;
-        typedef rbNode<value_type>&                                      node_reference;
-        typedef typename allocator_type::template rebind<rbnode>::other  node_allocator;
+        typedef Key key_type;
+        typedef T mapped_type;
+        typedef std::pair<const key_type, mapped_type> value_type;
+        typedef Alloc allocator_type;
+        typedef Compare key_compare;
+        typedef value_type *pointer;
+        typedef value_type &reference;
+        typedef const value_type *const_pointer;
+        typedef const value_type &const_reference;
+        typedef size_t size_type;
+        typedef MapIterator<value_type> iterator;
+        typedef MapIterator<const value_type> const_iterator;
+        typedef ReverseMapIterator<value_type> reverse_iterator;
+        typedef ReverseMapIterator<const value_type> const_reverse_iterator;
+        typedef rbNode<value_type> rbnode;
+        typedef rbNode<value_type> *node_pointer;
+        typedef rbNode<value_type> &node_reference;
+        typedef typename allocator_type::template rebind<rbnode>::other node_allocator;
 
     private:
         enum Color {
@@ -241,26 +241,9 @@ namespace ft {
             _begin->color = _BLACK;
         };
 
-        /**
-         * Create new node with allocation memory for node and data
-         * @param val pair key-value for data
-         * @param parent position of parent node
-         * @param color color of node by default red
-         * @return
-         */
-        node_pointer createNode(value_type val, node_pointer parent, int color = _RED){
-            node_pointer newElem = _alloc_node.allocate(1);
-            newElem->parent = parent;
-            newElem->right = nullptr;
-            newElem->left = nullptr;
-            newElem->color = color;
-            newElem->data = _alloc_value.allocate(1);
-            _alloc_value.construct(newElem->data, val);
-            _size++;
-            return newElem;
-        };
-
         void deleteNode(node_pointer node) {
+            if (node == _end || node == _begin)
+                return;
             _alloc_value.destroy(node->data);
             _alloc_value.deallocate(node->data, 1);
             _alloc_node.deallocate(node, 1);
@@ -273,7 +256,7 @@ namespace ft {
          */
         node_pointer getMaxFromIt(node_pointer node) {
             node_pointer tmp = node;
-            for (;tmp && (tmp->right && tmp->right != _end); tmp = tmp->right);
+            for (; tmp && tmp->right; tmp = tmp->right);
             return tmp;
         };
 
@@ -283,7 +266,7 @@ namespace ft {
          */
         node_pointer getMinFromIt(node_pointer node) {
             node_pointer tmp = node;
-            for (;tmp && (tmp->left && tmp->left != _begin); tmp = tmp->left);
+            for (; tmp && tmp->left; tmp = tmp->left);
             return tmp;
         };
 
@@ -296,26 +279,29 @@ namespace ft {
             node_pointer grandParent = getGrandParent(node);
             if (!grandParent)
                 return nullptr;
-            if (grandParent->right && grandParent->left) {
-                if (node->parent == grandParent->right)
-                    return grandParent->left;
+            if (isOnLeft(node->parent))
                 return grandParent->right;
-            }
-            return nullptr;
+            else
+                return grandParent->left;
         };
 
         /**
-         * The function takes a node and returns it brother
-         * @param node
-         * @return brother or NULL
+         * Create new node with allocation memory for node and data
+         * @param val pair key-value for data
+         * @param parent position of parent node
+         * @param color color of node by default red
+         * @return
          */
-        node_pointer getBrother(node_pointer node) {
-            if (node->parent && node->parent->left && node->parent->right) {
-                if (node->parent->right == node)
-                    return node->parent->left;
-                return node->parent->right;
-            }
-            return nullptr;
+        node_pointer createNode(value_type val){
+            node_pointer newElem = _alloc_node.allocate(1);
+            newElem->parent = nullptr;
+            newElem->right = nullptr;
+            newElem->left = nullptr;
+            newElem->color = _RED;
+            newElem->data = _alloc_value.allocate(1);
+            _alloc_value.construct(newElem->data, val);
+            _size++;
+            return newElem;
         };
 
         /**
@@ -324,7 +310,7 @@ namespace ft {
          * @return grandfather
          */
         node_pointer getGrandParent(node_pointer node) {
-            if (node->parent && node->parent->parent)
+            if (node && node->parent)
                 return node->parent->parent;
             return nullptr;
         };
@@ -333,325 +319,48 @@ namespace ft {
          * Relink begin and end of tree
          */
         void relinkTreeEnd() {
-                node_pointer min = getMinFromIt(_root);
-                node_pointer max = getMaxFromIt(_root);
-                min->left = _begin;
-                max->right = _end;
-                _begin->parent = min;
-                _end->parent = max;
-        };
-
-        /**
-         * simple inserting in binary search tree
-         * @param val pair key value
-         * @return inserted node
-         */
-        node_pointer bstInsert(value_type val) {
-            if (!_root) {
-                _root = createNode(val, nullptr, _BLACK);
-                return _root;
-            }
-            else {
-                node_pointer tmp = _root;
-                while (tmp) {
-                    if (_comp(tmp->data->first, val.first)) {
-                        if (tmp->right && tmp->right != _end)
-                            tmp = tmp->right;
-                        else {
-                            tmp->right = createNode(val, tmp);
-                            return tmp->right;
-                        }
-                    }
-                    else {
-                        if (tmp->left && tmp->left != _begin)
-                            tmp = tmp->left;
-                        else {
-                            tmp->left = createNode(val, tmp);
-                            return tmp->left;
-                        }
-                    }
-                }
-            }
-            return nullptr;
-        };
-
-        /**
-         * check what is case for balancing tree
-         * @param node
-         * @param parent node->parent
-         * @param grandParent node->parent->parent
-         * @return
-         */
-        bool isLeftLeftCase(node_pointer node, node_pointer parent, node_pointer grandParent) {
-            return parent == grandParent->left && node == parent->left;
-        };
-
-        /**
-         * check what is case for balancing tree
-         * @param node
-         * @param parent node->parent
-         * @param grandParent node->parent->parent
-         * @return
-         */
-        bool isLeftRightCase(node_pointer node, node_pointer parent, node_pointer grandParent) {
-            return parent == grandParent->left && node == parent->right;
-        };
-
-        /**
-         * check what is case for balancing tree
-         * @param node
-         * @param parent node->parent
-         * @param grandParent node->parent->parent
-         * @return
-         */
-        bool isRightRightCase(node_pointer node, node_pointer parent, node_pointer grandParent) {
-            return !(isLeftLeftCase(node, parent, grandParent));
-        };
-
-        /**
-         * check what is case for balancing tree
-         * @param node
-         * @param parent node->parent
-         * @param grandParent node->parent->parent
-         * @return
-         */
-        bool isRightLeftCase(node_pointer node, node_pointer parent, node_pointer grandParent) {
-            return !(isLeftRightCase(node, parent, grandParent));
-        };
-
-        /**
-         * recursively recolor the nodes to balance the tree
-         * @param uncle node->parent->!parent
-         * @param parent node->parent
-         * @param grandParent node->parent->parent
-         */
-        void reColor(node_pointer uncle, node_pointer parent, node_pointer grandParent) {
-            uncle->color = _BLACK;
-            parent->color = _BLACK;
-            grandParent->color = _RED;
-            balanceRBTree(grandParent);
-        };
-
-        bool hasOneChild(node_pointer node) {
-            return (node->right && !node->left) || (!node->right && node->left);
-        };
-
-        /**
-         * Check node has red child or not
-         * @param node
-         * @return true if has red child, false if not
-         */
-        bool hasRedChild(node_pointer node) {
-            return (node->right && node->right->color == _RED) ||
-                    (node->left && node->left->color == _RED);
-        };
-
-        /**
-         * find node that replaces a deleted node in BST
-         * @param node
-         * @return
-         */
-        node_pointer getReplacer(node_pointer node) {
-            if (node && node->left && node->right)
-                return getMinFromIt(node->right);
-            if (!node->left && !node->right)
-                return nullptr;
-            if (node->left)
-                return node->left;
-            return node->right;
-        };
-
-        /**
-         * Fixes the tree if there was a case when deleting an element
-         * @param node
-         */
-        void fixDoubleBlack(node_pointer node) {
-            if (node == _root)
-                return;
-            node_pointer brother = getBrother(node);
-            node_pointer parent = node->parent;
-            if (!brother)
-                fixDoubleBlack(parent);
-            else {
-                if (brother->color == _RED) {
-                    parent->color = _RED;
-                    brother->color = _BLACK;
-                    if (brother->parent->left == brother)
-                        rightRotation(parent);
-                    else
-                        leftRotation(parent);
-                    fixDoubleBlack(node);
-                }
-                else {
-                    if (hasRedChild(brother)) {
-                        if (brother->left && brother->left->color == _RED) {
-                            if (brother->parent->left == brother) {
-                                brother->left->color = brother->color;
-                                brother->color = parent->color;
-                                rightRotation(parent);
-                            }
-                            else {
-                                brother->left->color = parent->color;
-                                rightRotation(brother);
-                                leftRotation(parent);
-                            }
-                        }
-                        else {
-                            if (brother->parent->left == brother) {
-                                brother->right->color = parent->color;
-                                leftRotation(brother);
-                                rightRotation(parent);
-                            }
-                            else {
-                                brother->right->color = brother->color;
-                                brother->color = parent->color;
-                                leftRotation(parent);
-                            }
-                        }
-                        parent->color = _BLACK;
-                    }
-                    else {
-                        brother->color = _RED;
-                        if (parent->color == _BLACK)
-                            fixDoubleBlack(parent);
-                        else
-                            parent->color = _BLACK;
-                    }
-                }
-            }
-        };
-
-        bool areBlack(node_pointer node1, node_pointer node2) {
-            return (!node1 || node1->color == _BLACK) && (!node2 || node2->color == _BLACK);
-        };
-
-        /**
-         * Balancing the tree with turns additionally depending on the case
-         * @param node rotation start point
-         * @param parent node->parent
-         * @param grandParent node->parent->parent
-         */
-        void rotation(node_pointer node, node_pointer parent, node_pointer grandParent) {
-            if (isLeftLeftCase(node, parent, grandParent)) {
-                rightRotation(grandParent);
-                ft::swap(parent->color, grandParent->color);
-            }
-            else if (isLeftRightCase(node, parent, grandParent)) {
-                leftRotation(parent);
-                rightRotation(grandParent);
-                ft::swap(parent->color, grandParent->color);
-            }
-            else if (isRightRightCase(node, parent, grandParent)) {
-                leftRotation(grandParent);
-                ft::swap(grandParent->color, parent->color);
-            }
-            else if (isRightLeftCase(node, parent, grandParent)) {
-                rightRotation(parent);
-                leftRotation(grandParent);
-                ft::swap(grandParent->color, parent->color);
-            }
-        };
-
-        /**
-         * balance Red-Black Tree
-         * @param node start for balancing tree
-         */
-        void balanceRBTree(node_pointer node) {
-            if (node == _root) {
-                node->color = _BLACK;
-                return;
-            }
-            node_pointer grandParent = getGrandParent(node);
-            node_pointer uncle = getUncle(node);
-            node_pointer parent = node->parent;
-            if (parent && parent->color == _RED && uncle && grandParent) {
-                if (uncle && uncle->color == _RED)
-                    reColor(uncle, parent, grandParent);
-                else
-                    rotation(node, parent, grandParent);
-            }
+            node_pointer min = getMinFromIt(_root);
+            node_pointer max = getMaxFromIt(_root);
+            min->left = _begin;
+            max->right = _end;
+            _begin->parent = min;
+            _end->parent = max;
         };
 
         void leftRotation(node_pointer node) {
-            node_pointer rightNode = node->right;
-            node->right = rightNode->left;
-            if (node->right)
-                node->right->parent = node;
-            rightNode->parent = node->parent;
+            node_pointer pivot = node->right;
+            node->right = pivot->left;
+            if (pivot->left)
+                pivot->left->parent = node;
+            pivot->parent = node->parent;
             if (!node->parent)
-                _root = rightNode;
+                _root = pivot;
             else if (node == node->parent->left)
-                node->parent->left = rightNode;
+                node->parent->left = pivot;
             else
-                node->parent->right = rightNode;
-            rightNode->left = node;
-            node->parent = rightNode;
+                node->parent->right = pivot;
+            pivot->left = node;
+            node->parent = pivot;
         };
 
         void rightRotation(node_pointer node) {
-            node_pointer leftNode = node->left;
-            node->left = leftNode->right;
-            if (node->left)
-                node->left->parent = node;
-            leftNode->parent = node->parent;
+            node_pointer pivot = node->left;
+            node->left = pivot->right;
+            if (pivot->right)
+                pivot->right->parent = node;
+            pivot->parent = node->parent;
             if (!node->parent)
-                _root = leftNode;
-            else if ( node == node->parent->left)
-                node->parent->left = leftNode;
+                _root = pivot;
+            else if (node == node->parent->left)
+                node->parent->left = pivot;
             else
-                node->parent->right = leftNode;
-            leftNode->right = node;
-            node->parent = leftNode;
+                node->parent->right = pivot;
+            pivot->right = node;
+            node->parent = pivot;
         };
 
-        /**
-         * Delete node from tree
-         * @param delNode node to delete from tree
-         */
-        void deleteFromTree(node_pointer delNode) {
-            node_pointer nodeForReplace = getReplacer(delNode);
-            node_pointer parent = delNode->parent;
-            if (!nodeForReplace) {
-                if (delNode == _root)
-                    _root =  nullptr;
-                else {
-                    if (areBlack(delNode, nodeForReplace))
-                        fixDoubleBlack(delNode);
-                    else {
-                        node_pointer brother = getBrother(delNode);
-                        if (brother)
-                            brother->color = _RED;
-                    }
-                    if (delNode->parent->left == delNode)
-                        parent->left = nullptr;
-                    else
-                        parent->right = nullptr;
-                }
-                deleteNode(delNode);
-                return;
-            }
-            if (!delNode->left || !delNode->right) {
-                if (delNode == _root) {
-                    delNode->data = nodeForReplace->data;
-                    delNode->right = delNode->left = nullptr;
-                    deleteNode(nodeForReplace);
-                }
-                else {
-                    if (delNode->parent->left == delNode)
-                        parent->left = nodeForReplace;
-                    else
-                        parent->right = nodeForReplace;
-                    deleteNode(delNode);
-                    nodeForReplace->parent = parent;
-                    if (areBlack(delNode, nodeForReplace))
-                        fixDoubleBlack(nodeForReplace);
-                    else
-                        nodeForReplace->color = _BLACK;
-                }
-                return;
-            }
-            ft::swap(nodeForReplace->data, delNode->data);
-            deleteFromTree(nodeForReplace);
+        bool isOnLeft(node_pointer node) {
+          return node->parent->left == node;
         };
 
     public:
@@ -661,8 +370,8 @@ namespace ft {
          * @param comp Comparator for keys
          * @param alloc allocator for pair Key value
          */
-        explicit map(const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type()):
-            _alloc_value(alloc), _comp(comp), _root(nullptr), _size(0) {
+        explicit map(const key_compare &comp = key_compare(), const allocator_type &alloc = allocator_type()) :
+                _alloc_value(alloc), _comp(comp), _root(nullptr), _size(0) {
             initMap();
         };
 
@@ -674,25 +383,26 @@ namespace ft {
          * @param comp
          * @param alloc
          */
-        template <class InputIterator>
-        map (InputIterator first, InputIterator last, const key_compare& comp = key_compare(),
-             const allocator_type& alloc = allocator_type(), typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0):
+        template<class InputIterator>
+        map(InputIterator first, InputIterator last, const key_compare &comp = key_compare(),
+            const allocator_type &alloc = allocator_type(),
+            typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type * = 0):
                 _alloc_value(alloc), _comp(comp), _root(nullptr), _size(0) {
-                    initMap();
-                    insert(first, last);
-                };
+            initMap();
+            insert(first, last);
+        };
 
         /**
          * copy constructor
          * @param x other map
          */
-        map (const map& x):  _root(nullptr), _size(0) {
+        map(const map &x) : _root(nullptr), _size(0) {
             if (this == &x)
-                return ;
+                return;
             *this = x;
         };
 
-        map &operator=(const map& x) {
+        map &operator=(const map &x) {
             clear();
             _alloc_value = x._alloc_value;
             _comp = x._comp;
@@ -700,9 +410,11 @@ namespace ft {
         };
 
         ~map() {
-            clear();
-           // _alloc_node.deallocate(_begin, 1);
-           // _alloc_node.deallocate(_end, 1);
+//            clear();
+//            _alloc_node.destroy(_end);
+//            _alloc_node.destroy(_begin);
+//            _alloc_node.deallocate(_begin, 1);
+//            _alloc_node.deallocate(_end, 1);
         };
 
         mapped_type &operator[](const key_type &key) {
@@ -722,7 +434,8 @@ namespace ft {
         const_iterator begin() const {
             if (!_size)
                 return const_iterator(_end);
-            return const_iterator(_begin->parent);};
+            return const_iterator(_begin->parent);
+        };
 
         /**
          * Returns a reverse iterator pointing to the last element in the container (i.e., its reverse beginning).
@@ -730,8 +443,8 @@ namespace ft {
          */
         reverse_iterator rbegin() {
             if (!_size)
-                return reverse_iterator (_begin);
-            return reverse_iterator (_end->parent);
+                return reverse_iterator(_begin);
+            return reverse_iterator(_end->parent);
         };
 
         /**
@@ -740,54 +453,129 @@ namespace ft {
          */
         const_reverse_iterator rbegin() const {
             if (!_size)
-                return const_reverse_iterator (_begin);
-            return const_reverse_iterator (_end->parent);};
+                return const_reverse_iterator(_begin);
+            return const_reverse_iterator(_end->parent);
+        };
 
         /**
          * Returns an iterator referring to the past-the-end element in the map container
          * @return An iterator to the past-the-end element in the container.
          */
-        iterator end() {return iterator(_end);};
+        iterator end() { return iterator(_end); };
 
         /**
          * Returns an const iterator referring to the past-the-end element in the map container
          * @return An const iterator to the past-the-end element in the container.
          */
-        const_iterator end() const {return const_iterator(_end);};
+        const_iterator end() const { return const_iterator(_end); };
 
         /**
          * Returns a reverse iterator pointing to the theoretical element right before the first element in the map
          * container (which is considered its reverse end).
          * @return A reverse iterator to the reverse end of the sequence container.
          */
-        reverse_iterator rend() {return reverse_iterator (_begin);};
+        reverse_iterator rend() { return reverse_iterator(_begin); };
 
         /**
          * Returns a reverse const iterator pointing to the theoretical element right before the first element in the map
          * container (which is considered its reverse end).
          * @return A reverse const iterator to the reverse end of the sequence container.
          */
-        const_reverse_iterator rend() const {return const_reverse_iterator (_begin);};
+        const_reverse_iterator rend() const { return const_reverse_iterator(_begin); };
+
 
         /**
-         *
-         * @param val pair key - value
-         * @return it on new elem and true if insert success, and it on end and false if insert fail
+         * Insertion in standart binary search tree
+         * @param val key-value
+         * @return inserted node
          */
+
+        void standartBstInsertion(value_type val) {
+            node_pointer elem = createNode(val);
+            node_pointer parent = nullptr;
+            node_pointer tmp = _root;
+            while (tmp) {
+                parent = tmp;
+                if (!_comp(val.first, tmp->data->first))
+                    tmp = tmp->right;
+                else
+                    tmp = tmp->left;
+            }
+            elem->parent = parent;
+            if (!parent) {
+                _root = elem;
+                _root->color = _BLACK;
+                return;
+            }
+            else if (_comp(parent->data->first, val.first))
+                parent->right = elem;
+            else
+                parent->left = elem;
+            if (!elem->parent->parent)
+                return;
+            rbInsertion(elem);
+        };
+
+        void rbInsertion(node_pointer tmp) {
+            node_pointer uncle;
+            while (tmp->parent && tmp->parent->color == _RED) {
+                if (tmp->parent == tmp->parent->parent->right) {
+                    uncle = tmp->parent->parent->left;
+                    if (uncle && uncle->color == _RED) {
+                        uncle->color = _BLACK;
+                        tmp->parent->color = _BLACK;
+                        tmp->parent->parent->color = _RED;
+                        tmp = tmp->parent->parent;
+                    }
+                    else {
+                        if (tmp == tmp->parent->left) {
+                            tmp = tmp->parent;
+                            rightRotation(tmp);
+                        }
+                        tmp->parent->color = _BLACK;
+                        tmp->parent->parent->color = _RED;
+                        leftRotation(tmp->parent->parent);
+                    }
+                }
+                else {
+                    uncle = tmp->parent->parent->right;
+                    if (uncle && uncle->color == _RED) {
+                        uncle->color = _BLACK;
+                        tmp->parent->color = _BLACK;
+                        tmp->parent->parent->color = _RED;
+                        tmp = tmp->parent->parent;
+                    }
+                    else {
+                        if (tmp == tmp->parent->right) {
+                            tmp = tmp->parent;
+                            leftRotation(tmp);
+                        }
+                        tmp->parent->color = _BLACK;
+                        tmp->parent->parent->color = _RED;
+                        rightRotation(tmp->parent->parent);
+                    }
+                }
+                if (tmp == _root)
+                    break;
+            }
+            _root->color = _BLACK;
+        };
 
         /**
          * Insert new element in a map
          * @param val pair key-value
          * @return iterator on new element and true if insert success, or iterator with same key on old element and false
          */
-        std::pair<iterator, bool> insert(const value_type& val) {
+        std::pair<iterator, bool> insert(const value_type &val) {
             iterator found = find(val.first);
-            if (found != end())
+            if (found != end()) {
                 return std::pair<iterator, bool>(found, false);
-            node_pointer tmp = bstInsert(val);
+            }
+            unlink();
+            standartBstInsertion(val);
             relinkTreeEnd();
-            balanceRBTree(tmp);
-            return std::pair<iterator, bool>(iterator(tmp), true);
+            found = find(val.first);
+            return std::pair<iterator, bool>(found, true);
         };
 
         /**
@@ -796,8 +584,9 @@ namespace ft {
          * @param first
          * @param last
          */
-        template <class InputIterator>
-        void insert (InputIterator first, InputIterator last, typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type* = 0) {
+        template<class InputIterator>
+        void insert(InputIterator first, InputIterator last,
+                    typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type * = 0) {
             for (; first != last; first++)
                 insert(*first);
         };
@@ -808,8 +597,8 @@ namespace ft {
          * @param val
          * @return iterator on new element
          */
-        iterator insert (iterator position, const value_type& val) {
-            (void)position;
+        iterator insert(iterator position, const value_type &val) {
+            (void) position;
             return insert(val).first;
         };
 
@@ -819,9 +608,9 @@ namespace ft {
          * @param k it is a key
          * @return An iterator to the element, if an element with specified key is found, or end otherwise.
          */
-        iterator find (const key_type& k) {
+        iterator find(const key_type &k) {
             iterator it = begin();
-            for(iterator ite = end(); it != ite && it->first != k; it++);
+            for (iterator ite = end(); it != ite && it->first != k; it++);
             return it;
         };
 
@@ -831,9 +620,9 @@ namespace ft {
          * @param k it is a key
          * @return An iterator to the element, if an element with specified key is found, or end otherwise.
          */
-        const_iterator find (const key_type& k) const {
+        const_iterator find(const key_type &k) const {
             const_iterator it = begin();
-            for(const_iterator ite = end(); it != ite && it->first != k; it++)
+            for (const_iterator ite = end(); it != ite && it->first != k; it++);
             return it;
         };
 
@@ -841,19 +630,19 @@ namespace ft {
          * Returns the maximum number of elements that the map container can hold.
          * @return The maximum number of elements a map container can hold as content.
          */
-        size_type max_size() const{return _alloc_value.max_size() / 2;};
+        size_type max_size() const { return _alloc_value.max_size() / 2; };
 
         /**
          * Returns the number of elements in the map container.
          * @return number of elements in container
          */
-        size_type size() const {return _size;};
+        size_type size() const { return _size; };
 
         /**
          * Returns whether the map container is empty (i.e. whether its size is 0).
          * @return true if size 0, or false
          */
-        bool empty() const {return _size == 0;};
+        bool empty() const { return _size == 0; };
 
         /**
          * Removes all elements from the map container (which are destroyed), leaving the container with a size of 0.
@@ -861,18 +650,39 @@ namespace ft {
         void clear() {
             erase(begin(), end());
         };
+
         void unlink() {
-            _begin->parent->left = nullptr;
-            _end->parent->right = nullptr;
+            if (_begin->parent)
+                _begin->parent->left = nullptr;
+            if (_end->parent)
+                _end->parent->right = nullptr;
         }
+
+        void transplant(node_pointer u, node_pointer v) {
+            if (!u->parent)
+                _root = v;
+            else if ( u == u->parent->left)
+                u->parent->left = v;
+            else
+                u->parent->right = v;
+            v->parent = u->parent;
+        };
+
+        void deleteFromTree(node_pointer node) {
+            node_pointer tmp = node;
+            node_pointer x;
+            int saveColor = node->color;
+
+        };
+
         /**
          * Removes from the map container either a single element by position
          * @param position
          */
-        void erase (iterator position) {
-            node_pointer delNode = position.getNode();
+        void erase(iterator position) {
+            node_pointer node = position.getNode();
             unlink();
-            deleteFromTree(delNode);
+            deleteFromTree(node);
             relinkTreeEnd();
         };
 
@@ -881,7 +691,7 @@ namespace ft {
          * @param k key
          * @return
          */
-        size_type erase (const key_type& k) {
+        size_type erase(const key_type &k) {
             iterator it = find(k);
             if (it == end())
                 return 0;
@@ -894,7 +704,7 @@ namespace ft {
          * @param first
          * @param last
          */
-        void erase (iterator first, iterator last) {
+        void erase(iterator first, iterator last) {
             for (; first != last; first++)
                 erase(first);
         };
@@ -904,11 +714,13 @@ namespace ft {
          * which is another map of the same type. Sizes may differ.
          * @param x Another map container of the same type as this
          */
-        void swap (map& x) {
+        void swap(map &x) {
             ft::swap(_size, x._size);
             ft::swap(_root, x._root);
             ft::swap(_begin, x._begin);
             ft::swap(_end, x._end);
         };
+
+        node_pointer getRoot() {return _root;};
     };
 }
