@@ -140,55 +140,68 @@ private:
         v->parent = u->parent;
     }
 
-    void deleteNodeHelper(NodePtr node, int key) {
-        NodePtr z = TNULL;
-        NodePtr x, y;
-        while (node != TNULL) {
-            if (node->data == key) {
-                z = node;
+    void	RedBlackDeleteFixup(mapnode *x) {
+        if (x == 0)
+            return ;
+        while (x != this->_root && x->colour == BLACK) {
+            if (x == x->parent->left) { // Case A
+                mapnode *w = x->parent->right;
+                if (w->colour == RED) { // Case 1
+                    w->colour = BLACK;
+                    x->parent->colour = RED;
+                    left_rotation(x->parent);
+                    w = x->parent->right;
+                }
+                if (w->left->colour == BLACK && w->right->colour == BLACK) { // case 2
+                    w->colour = RED;
+                    x = x->parent;
+                }
+                else { // Case 3 or 4
+                    if (w->right->colour == BLACK) { // Case 3
+                        w->left->colour = BLACK;
+                        w->colour = RED;
+                        right_rotation(w);
+                        w = x->parent->right;
+                    }
+                    else { // Case 4
+                        w->colour = x->parent->colour;
+                        x->parent->colour = BLACK;
+                        w->right->colour = BLACK;
+                        left_rotation(x->parent);
+                        x = this->_root;
+                    }
+                }
             }
-
-            if (node->data <= key) {
-                node = node->right;
-            } else {
-                node = node->left;
+            else { // Case B
+                mapnode *w = x->parent->left;
+                if (w->colour == RED) { // Case 1
+                    w->colour = BLACK;
+                    x->parent->colour = RED;
+                    right_rotation(x->parent);
+                    w = x->parent->left;
+                }
+                if (w->right->colour == BLACK && w->left->colour == BLACK) { // Case 2
+                    w->colour = RED;
+                    x = x->parent;
+                }
+                else { // Case 3 or 4
+                    if (w->left->colour == BLACK) { // Case 3
+                        w->right->colour = BLACK;
+                        w->colour = RED;
+                        left_rotation(w);
+                        w = x->parent->left;
+                    }
+                    else { // Case 4
+                        w->colour = x->parent->colour;
+                        x->parent->colour = BLACK;
+                        w->left->colour = BLACK;
+                        right_rotation(x->parent);
+                        x = this->_root;
+                    }
+                }
             }
         }
-
-        if (z == TNULL) {
-            cout << "Key not found in the tree" << endl;
-            return;
-        }
-
-        y = z;
-        int y_original_color = y->color;
-        if (z->left == TNULL) {
-            x = z->right;
-            rbTransplant(z, z->right);
-        } else if (z->right == TNULL) {
-            x = z->left;
-            rbTransplant(z, z->left);
-        } else {
-            y = minimum(z->right);
-            y_original_color = y->color;
-            x = y->right;
-            if (y->parent == z) {
-                x->parent = y;
-            } else {
-                rbTransplant(y, y->right);
-                y->right = z->right;
-                y->right->parent = y;
-            }
-
-            rbTransplant(z, y);
-            y->left = z->left;
-            y->left->parent = y;
-            y->color = z->color;
-        }
-        delete z;
-        if (y_original_color == 0) {
-            deleteFix(x);
-        }
+        x->colour = BLACK;
     }
 
     // For balancing the tree after insertion

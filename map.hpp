@@ -210,9 +210,13 @@ namespace ft {
         typedef typename allocator_type::template rebind<rbnode>::other node_allocator;
 
     private:
+        enum Direction {
+            _RIGHT,
+            _LEFT
+        };
         enum Color {
             _BLACK,
-            _RED,
+            _RED
         };
 
         node_allocator _alloc_node;
@@ -242,8 +246,6 @@ namespace ft {
         };
 
         void deleteNode(node_pointer node) {
-            if (node == _end || node == _begin)
-                return;
             _alloc_value.destroy(node->data);
             _alloc_value.deallocate(node->data, 1);
             _alloc_node.deallocate(node, 1);
@@ -319,6 +321,8 @@ namespace ft {
          * Relink begin and end of tree
          */
         void relinkTreeEnd() {
+            if (!_size)
+                return;
             node_pointer min = getMinFromIt(_root);
             node_pointer max = getMaxFromIt(_root);
             min->left = _begin;
@@ -327,40 +331,41 @@ namespace ft {
             _end->parent = max;
         };
 
-        void leftRotation(node_pointer node) {
-            node_pointer pivot = node->right;
-            node->right = pivot->left;
-            if (pivot->left)
-                pivot->left->parent = node;
-            pivot->parent = node->parent;
-            if (!node->parent)
-                _root = pivot;
-            else if (node == node->parent->left)
-                node->parent->left = pivot;
-            else
-                node->parent->right = pivot;
-            pivot->left = node;
-            node->parent = pivot;
-        };
-
-        void rightRotation(node_pointer node) {
-            node_pointer pivot = node->left;
-            node->left = pivot->right;
-            if (pivot->right)
-                pivot->right->parent = node;
-            pivot->parent = node->parent;
-            if (!node->parent)
-                _root = pivot;
-            else if (node == node->parent->left)
-                node->parent->left = pivot;
-            else
-                node->parent->right = pivot;
-            pivot->right = node;
-            node->parent = pivot;
+        void rotation(node_pointer node, Direction direction) {
+            if (direction == _LEFT) {
+                node_pointer pivot = node->right;
+                node->right = pivot->left;
+                if (pivot->left)
+                    pivot->left->parent = node;
+                pivot->parent = node->parent;
+                if (!node->parent)
+                    _root = pivot;
+                else if (node == node->parent->left)
+                    node->parent->left = pivot;
+                else
+                    node->parent->right = pivot;
+                pivot->left = node;
+                node->parent = pivot;
+            }
+            else if (direction == _RIGHT) {
+                node_pointer pivot = node->left;
+                node->left = pivot->right;
+                if (pivot->right)
+                    pivot->right->parent = node;
+                pivot->parent = node->parent;
+                if (!node->parent)
+                    _root = pivot;
+                else if (node == node->parent->left)
+                    node->parent->left = pivot;
+                else
+                    node->parent->right = pivot;
+                pivot->right = node;
+                node->parent = pivot;
+            }
         };
 
         bool isOnLeft(node_pointer node) {
-          return node->parent->left == node;
+            return node == node->parent->left;
         };
 
     public:
@@ -530,11 +535,11 @@ namespace ft {
                     else {
                         if (tmp == tmp->parent->left) {
                             tmp = tmp->parent;
-                            rightRotation(tmp);
+                            rotation(tmp, _RIGHT);
                         }
                         tmp->parent->color = _BLACK;
                         tmp->parent->parent->color = _RED;
-                        leftRotation(tmp->parent->parent);
+                        rotation(tmp->parent->parent, _LEFT);
                     }
                 }
                 else {
@@ -548,11 +553,11 @@ namespace ft {
                     else {
                         if (tmp == tmp->parent->right) {
                             tmp = tmp->parent;
-                            leftRotation(tmp);
+                            rotation(tmp, _LEFT);
                         }
                         tmp->parent->color = _BLACK;
                         tmp->parent->parent->color = _RED;
-                        rightRotation(tmp->parent->parent);
+                        rotation(tmp->parent->parent, _RIGHT);
                     }
                 }
                 if (tmp == _root)
@@ -648,7 +653,8 @@ namespace ft {
          * Removes all elements from the map container (which are destroyed), leaving the container with a size of 0.
          */
         void clear() {
-            erase(begin(), end());
+            while (_size)
+                erase(begin());
         };
 
         void unlink() {
@@ -659,78 +665,157 @@ namespace ft {
         }
 
         void transplant(node_pointer u, node_pointer v) {
-            if (!u->parent)
+            if (u && !u->parent) // u is root
                 _root = v;
-            else if ( u == u->parent->left)
+            else if (isOnLeft(u))
                 u->parent->left = v;
             else
                 u->parent->right = v;
-            v->parent = u->parent;
+            if (v)
+                v->parent = u->parent;
+        };
+
+        bool hasRedChild(node_pointer x) {
+            return (x->left and x->left->color == _RED) or (x->right and x->right->color == _RED);
         };
 
         void fixTreeAfterDeletion(node_pointer x) {
-            node_pointer s;
-            while (x != _root && x->color == 0) {
+            if (!x)
+                return;
+            while (x != _root and x->color == _BLACK) {
                 if (x == x->parent->left) {
-                    s = x->parent->right;
-                    if (s && s->color == _RED) {
-                        s->color = _BLACK;
+                    node_pointer w = x->parent->right;
+                    if (w->color == _RED) {
+                        w->color = _BLACK;
                         x->parent->color = _RED;
-                        leftRotation(x->parent);
-                        s = x->parent->right;
+                        rotation(x->parent, _LEFT);
+                        w = x->parent->right;
                     }
-                    if (s->left->color == _BLACK && s->right->color == _BLACK) {
-                        s->color = _RED;
+                    if (w->left->color == _BLACK and w->right->color == _BLACK) {
+                        w->color = _RED;
                         x = x->parent;
                     }
                     else {
-                        if (s->right->color == _BLACK) {
-                            s->left->color = _BLACK;
-                            s->color = _RED;
-                            rightRotation(s);
-                            s = x->parent->right;
+                        if (w->right->color == _BLACK) {
+                            w->left->color = _BLACK;
+                            w->color = _RED;
+                            rotation(w, _RIGHT);
+                            w = x->parent->right;
                         }
-                        s->color = x->parent->color;
-                        x->parent->color = _BLACK;
-                        s->right->color = _BLACK;
-                        leftRotation(x->parent);
-                        x = _root;
+                        else {
+                            w->color = x->parent->color;
+                            w->parent->color = _BLACK;
+                            w->right->color = _BLACK;
+                            rotation(x->parent, _LEFT);
+                            x = _root;
+                        }
                     }
                 }
                 else {
-                    s = x->parent->left;
-                    if (s && s->color == _RED) {
-                        s->color = _BLACK;
+                    node_pointer w = x->parent->left;
+                    if (w->color == _RED) {
+                        w->color = _BLACK;
                         x->parent->color = _RED;
-                        rightRotation(x->parent);
-                        s = x->parent->left;
+                        rotation(x->parent, _RIGHT);
+                        w = x->parent->left;
                     }
-                    if (s->right->color == _BLACK && s->left->color == _BLACK) {
-                        s->color = _RED;
+                    if (w->right->color == _BLACK and w->left->color == _BLACK) {
+                        w->color = _RED;
                         x = x->parent;
                     }
                     else {
-                        if (s->left->color == _BLACK) {
-                            s->right->color = 0;
-                            s->color = 1;
-                            leftRotation(s);
-                            s = x->parent->left;
-                        }
-                        s->color = x->parent->color;
-                        x->parent->color = _BLACK;
-                        s->left->color = _BLACK;
-                        rightRotation(x->parent);
-                        x = _root;
+                         if (w->left->color == _BLACK) {
+                             w->right->color = _BLACK;
+                             w->color = _RED;
+                             rotation(w, _LEFT);
+                             w = x->parent->left;
+                         }
+                         else {
+                             w->color = x->parent->color;
+                             x->parent->color = _BLACK;
+                             w->left->color = _BLACK;
+                             rotation(x->parent, _RIGHT);
+                             x = _root;
+                         }
                     }
                 }
             }
             x->color = _BLACK;
         };
 
-        void deleteFromTree(node_pointer node) {
-            node_pointer tmp = node;
-            node_pointer x;
-            int saveColor = node->color;
+        node_pointer replace(node_pointer v) {
+            if (v->left and v->right) // when v have two children
+                return getMaxFromIt(v->right);
+            if (!v->left and !v->right) // when without children is leaf
+                return nullptr;
+            if (v->left) // when node have single child
+                return v->left;
+            return v->right;
+        };
+
+
+
+        void linkNodes(node_pointer parent, node_pointer child, Direction direction) {
+            if (!parent)
+                return;
+            if (direction == _RIGHT)
+                parent->right = child;
+            else if (direction == _LEFT)
+                parent->left = child;
+            if (child)
+                child->parent = parent;
+        };
+
+        node_pointer swapValues(node_pointer successor, node_pointer nodeToDel) {
+            bool side;
+            node_pointer left = successor->left;
+            node_pointer right = successor->right;
+            if (successor->parent == nodeToDel) {
+                side = isOnLeft(successor);
+                if (side)
+                    linkNodes(successor, nodeToDel->right, _RIGHT);
+                else
+                    linkNodes(successor, nodeToDel->left, _LEFT);
+                if (nodeToDel->parent) {
+                    if (isOnLeft(nodeToDel))
+                        linkNodes(nodeToDel->parent, successor, _LEFT);
+                    else
+                        linkNodes(nodeToDel->parent, successor, _RIGHT);
+                }
+                else
+                    successor->parent = nullptr;
+                if (side)
+                    linkNodes(successor, nodeToDel, _LEFT);
+                else
+                    linkNodes(successor, nodeToDel, _RIGHT);
+                linkNodes(nodeToDel, right, _RIGHT);
+                linkNodes(nodeToDel, left, _LEFT);
+            }
+            else {
+                node_pointer parent = successor->parent;
+                side = isOnLeft(successor);
+                linkNodes(successor, nodeToDel->right, _RIGHT);
+                linkNodes(successor, nodeToDel->left, _LEFT);
+                if (nodeToDel->parent and isOnLeft(nodeToDel))
+                    linkNodes(nodeToDel->parent, successor, _LEFT);
+                else
+                    linkNodes(nodeToDel->parent, successor, _RIGHT);
+                if (side)
+                    linkNodes(parent, nodeToDel, _LEFT);
+                else
+                    linkNodes(parent,nodeToDel, _RIGHT);
+                linkNodes(nodeToDel, left, _LEFT);
+                linkNodes(nodeToDel, right, _RIGHT);
+            }
+            if (nodeToDel == _root)
+                _root = successor;
+            //std::cout << "tut" << std::endl;
+            return nodeToDel;
+        };
+
+        void deleteFromTree(node_pointer node) { // node contains item to be deleted
+            node_pointer y(node), x;
+            int savedColor = y->color;
             if (!node->left) {
                 x = node->right;
                 transplant(node, node->right);
@@ -740,24 +825,26 @@ namespace ft {
                 transplant(node, node->left);
             }
             else {
-                tmp = getMinFromIt(node->right);
-                saveColor = tmp->color;
-                x = tmp->right;
-                if (tmp->parent == node)
-                    x->parent = tmp;
-                else {
-                    transplant(tmp, tmp->right);
-                    tmp->right = node->right;
-                    tmp->right->parent = tmp;
+                y = getMinFromIt(node->right);
+                savedColor = y->color;
+                x = y->right;
+                if (node == y->parent) {
+                    if (x)
+                        x->parent = y;
                 }
-                transplant(node, tmp);
-                tmp->left = node->left;
-                tmp->left->parent = tmp;
-                tmp->color = node->color;
+                else {
+                    transplant(y, y->right);
+                    y->right = node->right;
+                    y->right->parent = y;
+                }
+                transplant(node, y);
+                y->left = node->left;
+                y->left->parent = y;
+                y->color = node->color;
             }
-            deleteNode(node);
-            if (saveColor == _BLACK)
+            if (savedColor == _BLACK)
                 fixTreeAfterDeletion(x);
+            deleteNode(node);
         };
 
         /**
@@ -765,10 +852,7 @@ namespace ft {
          * @param position
          */
         void erase(iterator position) {
-            node_pointer node = position.getNode();
-            unlink();
-            deleteFromTree(node);
-            relinkTreeEnd();
+            erase(position->first);
         };
 
         /**
@@ -777,11 +861,21 @@ namespace ft {
          * @return
          */
         size_type erase(const key_type &k) {
-            iterator it = find(k);
-            if (it == end())
-                return 0;
-            erase(it);
-            return 1;
+            node_pointer tmp = _root;
+            unlink();
+            while (tmp) {
+                if (k == tmp->data->first) {
+                    deleteFromTree(tmp);
+                    relinkTreeEnd();
+                    return 1;
+                }
+                if (_comp(k, tmp->data->first))
+                    tmp = tmp->left;
+                else
+                    tmp = tmp->right;
+            }
+            relinkTreeEnd();
+            return 0;
         };
 
         /**
@@ -791,7 +885,7 @@ namespace ft {
          */
         void erase(iterator first, iterator last) {
             for (; first != last; first++)
-                erase(first);
+                erase(first->first);
         };
 
         /**

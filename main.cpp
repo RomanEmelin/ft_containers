@@ -313,14 +313,26 @@ int main() {
             for (ft::map<int, std::string>::iterator mit = myM2.begin(), ite = myM2.end(); mit != ite; mit++)
                 std::cout << mit->first << " ";
             std::cout << std::endl;
-            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
-                      << std::endl;
+            ft::map<int, char> tester;
+            tester.insert(std::pair<int, char>(20, 'v'));
+            tester.insert(std::pair<int, char>(10, 'v'));
+            tester.insert(std::pair<int, char>(11, 'v'));
+            tester.insert(std::pair<int, char>(15, 'v'));
+            tester.insert(std::pair<int, char>(27, 'v'));
+            tester.insert(std::pair<int, char>(23, 'v'));
+            tester.insert(std::pair<int, char>(14, 'v'));
+            tester.insert(std::pair<int, char>(16, 'v'));
+            tester.insert(std::pair<int, char>(28, 'v'));
+            tester.insert(std::pair<int, char>(12, 'v'));
+            tester.insert(std::pair<int, char>(25, 'v'));
+           std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
             std::cout << RED << "Testing " << CYAN << ".insert(const value_type &val) " << RED << "function: " << std::endl;
             for (int i = 1; i < 10; i++) {
                 int r = rand() % 15;
                 stdM.insert(std::pair<int, std::string>(r, "l"));
                 myM.insert(std::pair<int, std::string>(r, "l"));
             }
+            std::cout << std::endl;
             std::cout << GREEN << "Std insert: " << " " << CYAN;
             for (std::map<int, std::string>::iterator it = stdM.begin(), ite = stdM.end(); it != ite; it++)
                 std::cout << it->first << " ";
@@ -362,19 +374,18 @@ int main() {
             for (ft::map<int, std::string>::iterator mit = myM.begin(), ite = myM.end(); mit != ite; mit++)
                 std::cout << mit->first << " ";
             std::cout << std::endl;
-//            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
-//            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
-//            //stdM.clear();
-//            //myM.clear();
-//            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
-//            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
-//            std::cout << "CHeck: " << stdM.erase(1) << std::endl;
-//            std::cout << "CHeck2: " << myM.erase(1) << std::endl;
-//            stdM[66] = "dd";
-//            myM[66] = "gg";
-//            std::cout << "stdM: " << stdM[66] << std::endl;
-//            std::cout << "myMap: " << myM[66] << std::endl;
-
+            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+            stdM.clear();
+            myM.clear();
+            std::cout << GREEN << "St size: " << CYAN << stdM.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myM.size() << std::endl;
+            std::cout << "CHeck: " << stdM.erase(1) << std::endl;
+            std::cout << "CHeck2: " << myM.erase(1) << std::endl;
+            stdM[66] = "dd";
+            myM[66] = "gg";
+            std::cout << "stdM: " << stdM[66] << std::endl;
+            std::cout << "myMap: " << myM[66] << std::endl;
         }
         else if (input == "exit")
             return 0;
