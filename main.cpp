@@ -14,6 +14,8 @@
 #include "stack.hpp"
 #include <map>
 #include "map.hpp"
+#include <set>
+#include "set.hpp"
 
 void list_tester();
 
@@ -472,6 +474,212 @@ int main() {
             std::cout << std::endl;
             std::cout << GREEN << "Std: " << CYAN << stdM.upper_bound(101)->first << std::endl;
             std::cout << GREEN << "My: " << CYAN << myM.upper_bound(101)->first << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".find(const key_type& k)" << RED << " function: " << std::endl;
+            std::cout << GREEN << "Std: " << CYAN << stdM.find(103)->first << std::endl;
+            std::cout << GREEN << "My: " << CYAN << myM.find(103)->first << std::endl;
+            std::cout << GREEN << "Std: " << CYAN << stdM.find(108)->first << std::endl;
+            std::cout << GREEN << "My: " << CYAN << myM.find(108)->first << std::endl;
+        }
+        else if (input == "set") {
+            std::cout << GREEN << "##############################################################" << std::endl;
+            std::cout << "###                     ";
+            std::cout << CYAN << "Set tester" << GREEN"                         ###" << std::endl;
+            std::cout << "##############################################################\n" << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << GREEN << "Create two integer, string sets using " << CYAN << "default constructor" << RESET
+                      << std::endl;
+            std::set<int> stdS;
+            ft::set<int> myS;
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << YELLOW << "Create two integer, string sets using " << CYAN << "range constructor" << RESET
+                      << std::endl;
+            for (int i = 1; i < 10; i++) {
+                int r = rand() % 15;
+                stdS.insert(r);
+                myS.insert(r);
+            }
+            std::set<int> stdS2(stdS.begin(), stdS.end());
+            ft::set<int> myS2(myS.begin(), myS.end());
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << GREEN << "St2 size: " << CYAN << stdS2.size() << std::endl;
+            std::cout << GREEN << "My2 size: " << CYAN << myS2.size() << std::endl;
+
+            std::cout << RED << " stdS: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS.begin(), ite = stdS.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << RED << " stdS2: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS2.begin(), ite = stdS2.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << RED << " myS: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS.begin(), ite = myS.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            std::cout << RED << " myS2: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS2.begin(), ite = myS2.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".insert(const value_type &val) " << RED << "function: " << std::endl;
+            for (int i = 1; i < 10; i++) {
+                int r = rand() % 15;
+                stdS.insert(r);
+                myS.insert(r);
+            }
+            std::cout << std::endl;
+            std::cout << GREEN << "Std insert: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS.begin(), ite = stdS.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My insert: " << " " << CYAN;
+            for (ft::set<int>::iterator it = myS.begin(), ite = myS.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".max_size() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "St max size: " << CYAN << stdS.max_size() << std::endl;
+            std::cout << GREEN << "My max size: " << CYAN << myS.max_size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".empty() " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Standart set .empty(): " << CYAN << (stdS.empty() ? "true" : "false") << std::endl;
+            std::cout << GREEN << "My set .empty(): " << CYAN << (myS.empty() ? "true" : "false") << RESET << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".erase(iterator position) " << RED << "function: " << std::endl;
+            std::cout << GREEN << "Std set: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS.begin(), ite = stdS.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My set: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS.begin(), ite = myS.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            stdS.erase(++(stdS.begin()));
+            myS.erase(++(myS.begin()));
+            std::cout << GREEN << "Std set: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS.begin(), ite = stdS.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My set: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS.begin(), ite = myS.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << "CHeck: " << stdS.erase(1) << std::endl;
+            std::cout << "CHeck2: " << myS.erase(1) << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".clear()" << RED << " function: " << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            stdS.clear();
+            myS.clear();
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".swap(set &x)" << RED << " function: " << std::endl;
+            myS2.clear();
+            stdS2.clear();
+            for (int i = 0; i < 10; i++) {
+                myS.insert(i);
+                stdS.insert(i);
+
+            }
+            for (int i = 100; i < 105; i++) {
+                myS2.insert(i);
+                stdS2.insert(i);
+            }
+            std::cout << GREEN << "Std set: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS.begin(), ite = stdS.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "Std set2: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS2.begin(), ite = stdS2.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My set: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS.begin(), ite = myS.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My set2: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS2.begin(), ite = myS2.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << GREEN << "St2 size: " << CYAN << stdS2.size() << std::endl;
+            std::cout << GREEN << "My2 size: " << CYAN << myS2.size() << std::endl;
+            std::cout << MAGENTA << "                 SWAP" << std::endl;
+            myS.swap(myS2);
+            stdS.swap(stdS2);
+            std::cout << GREEN << "Std set: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS.begin(), ite = stdS.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "Std set2: " << " " << CYAN;
+            for (std::set<int>::iterator it = stdS2.begin(), ite = stdS2.end(); it != ite; it++)
+                std::cout << *it << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My set: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS.begin(), ite = myS.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "My set2: " << " " << CYAN;
+            for (ft::set<int>::iterator mit = myS2.begin(), ite = myS2.end(); mit != ite; mit++)
+                std::cout << *mit << " ";
+            std::cout << std::endl;
+            std::cout << GREEN << "St size: " << CYAN << stdS.size() << std::endl;
+            std::cout << GREEN << "My size: " << CYAN << myS.size() << std::endl;
+            std::cout << GREEN << "St2 size: " << CYAN << stdS2.size() << std::endl;
+            std::cout << GREEN << "My2 size: " << CYAN << myS2.size() << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".lower_bound(const key_type& k)" << RED << " function: " << std::endl;
+            std::cout << GREEN << "Std: " << CYAN << *(stdS.lower_bound(101)) << std::endl;
+            std::cout << GREEN << "My: " << CYAN << *(myS.lower_bound(101)) << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".upper_bound(const value_type& val)" << RED << " function: " << std::endl;
+            std::cout << GREEN << "Std: " << CYAN << *(stdS.upper_bound(101)) << std::endl;
+            std::cout << GREEN << "My: " << CYAN << *(myS.upper_bound(101)) << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".equal_range (const value_type& val)" << RED << " function: " << std::endl;
+            std::pair <std::set<int>::iterator, std::set<int>::iterator> tst = stdS.equal_range(102);
+            std::pair <ft::set<int>::iterator, ft::set<int>::iterator> mtst = myS.equal_range(102);
+            std::cout << GREEN << "Std set: " << " " << CYAN;
+            for(; tst.first != tst.second; tst.first++) {
+                std::cout << *(tst.first) << " ";
+            }
+            std::cout << std::endl;
+            std::cout << GREEN << "My set: " << " " << CYAN;
+            for(; mtst.first != mtst.second; mtst.first++) {
+                std::cout << *(mtst.first) << " ";
+            }
+            std::cout << std::endl;
+            std::cout << GREEN << "Std: " << CYAN << *(stdS.upper_bound(101)) << std::endl;
+            std::cout << GREEN << "My: " << CYAN << *(myS.upper_bound(101)) << std::endl;
+            std::cout << MAGENTA << "\n<+==========================================================+>\n" << RESET
+                      << std::endl;
+            std::cout << RED << "Testing " << CYAN << ".find(const key_type& k)" << RED << " function: " << std::endl;
+            std::cout << GREEN << "Std: " << CYAN << *(stdS.find(103)) << std::endl;
+            std::cout << GREEN << "My: " << CYAN << *(myS.find(103)) << std::endl;
         }
         else if (input == "exit")
             return 0;

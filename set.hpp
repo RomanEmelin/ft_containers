@@ -4,195 +4,15 @@
 *######################################################*/
 
 #pragma once
-#include "list.hpp"
-#include <iterator>
-#include <memory>
-#include <utility>
 
 namespace ft {
 
-    /**
-     * Why Red-Black Trees?
-     * Sr. No.	Algorithm	Time Complexity
-     * 1.	    Search	        O(log n)
-     * 2.	    Insert	        O(log n)
-     * 3.	    Delete	        O(log n)
-     */
-    template<class V>
-    struct rbNode {
-        V *data;
-        rbNode *parent;
-        rbNode *right;
-        rbNode *left;
-        int color;
-    };
-    template<class T>
-    class MapIterator: public std::iterator<std::bidirectional_iterator_tag, T> {
+    template <class T, class Compare = std::less<T>, class Alloc = std::allocator<T> >
+    class set {
 
     public:
-        typedef rbNode<T> *pointer;
-        typedef rbNode<T> &reference;
-    private:
-        pointer _ptr;
-    public:
-        explicit MapIterator(pointer ptr = nullptr) : _ptr(ptr) {};
-
-        ~MapIterator() {};
-
-        MapIterator(const MapIterator &x) {
-            if (this == &x)
-                return;
-            *this = x;
-        };
-
-        MapIterator &operator=(const MapIterator &x) {
-            _ptr = x._ptr;
-            return *this;
-        };
-
-        MapIterator operator++() {
-            getNext();
-            return *this;
-        };
-
-        MapIterator operator++(int) {
-            MapIterator tmp(*this);
-            operator++();
-            return tmp;
-        };
-
-        MapIterator operator--() {
-            getPrev();
-            return *this;
-        };
-
-        MapIterator operator--(int) {
-            MapIterator tmp(*this);
-            operator--();
-            return tmp;
-        };
-
-        bool operator==(const MapIterator &x) const { return _ptr == x._ptr; };
-
-        bool operator!=(const MapIterator &x) const { return _ptr != x._ptr; };
-
-        T &operator*() const { return *(_ptr->data); };
-
-        T *operator->() const { return _ptr->data; };
-
-        pointer getNode() { return _ptr; };
-
-    private:
-        void getNext() {
-            if (_ptr->right)
-                for (_ptr = _ptr->right; _ptr->left; _ptr = _ptr->left);
-            else {
-                for (; _ptr->parent && _ptr->parent->right == _ptr; _ptr = _ptr->parent);
-                _ptr = _ptr->parent;
-            }
-        };
-
-        void getPrev() {
-            if (_ptr->left)
-                for (_ptr = _ptr->left; _ptr->right; _ptr = _ptr->right);
-            else {
-                for (; _ptr->parent && _ptr->parent->left == _ptr; _ptr =_ptr->parent);
-                _ptr = _ptr->parent;
-            }
-        };
-    };
-
-    template<class V>
-    class ReverseMapIterator: public std::iterator<std::bidirectional_iterator_tag, V> {
-
-    public:
-        typedef rbNode<V>* pointer;
-    private:
-        pointer _ptr;
-    public:
-        explicit ReverseMapIterator(pointer ptr = nullptr) : _ptr(ptr) {};
-
-        virtual ~ReverseMapIterator() {};
-
-        ReverseMapIterator(const ReverseMapIterator &x) {
-            if (this == &x)
-                return;
-            *this = x;
-        };
-
-        ReverseMapIterator &operator=(const ReverseMapIterator &x) {
-            _ptr = x._ptr;
-            return *this;
-        };
-
-        ReverseMapIterator operator++() {
-            getPrev();
-            return *this;
-        };
-
-        ReverseMapIterator operator++(int) {
-            ReverseMapIterator tmp(*this);
-            operator++();
-            return tmp;
-        };
-
-        ReverseMapIterator operator--() {
-            getNext();
-            return *this;
-        };
-
-        ReverseMapIterator operator--(int) {
-            ReverseMapIterator tmp(*this);
-            operator--();
-            return tmp;
-        };
-
-        bool operator==(const ReverseMapIterator &x) const { return _ptr == x._ptr; };
-
-        bool operator!=(const ReverseMapIterator &x) const { return _ptr != x._ptr; };
-
-        V &operator*() const { return *(_ptr->data); };
-
-        V *operator->() const { return _ptr->data; };
-
-        pointer getNode() {return _ptr;};
-
-    private:
-         void getNext() {
-            if (_ptr->right)
-                for (_ptr = _ptr->right; _ptr->left; _ptr = _ptr->left);
-            else {
-                for (; _ptr->parent && _ptr->parent->right == _ptr; _ptr = _ptr->parent);
-                _ptr = _ptr->parent;
-            }
-        };
-
-        void getPrev() {
-            if (_ptr->left)
-                for (_ptr = _ptr->left; _ptr->right; _ptr = _ptr->right);
-            else {
-                for (; _ptr->parent && _ptr->parent->left == _ptr; _ptr =_ptr->parent);
-                _ptr = _ptr->parent;
-            }
-        };
-
-
-    };
-
-    /**
-     * Oh my gosh! This is the map key=value!
-     * @tparam Key
-     * @tparam T
-     * @tparam Compare
-     * @tparam Alloc
-     */
-    template <class Key, class T, class Compare = std::less<Key>, class Alloc = std::allocator<std::pair<const Key,T> > >
-    class map {
-
-    public:
-        typedef Key key_type;
-        typedef T mapped_type;
-        typedef std::pair<const key_type, mapped_type> value_type;
+        typedef T key_type;
+        typedef T value_type;
         typedef Alloc allocator_type;
         typedef Compare key_compare;
         typedef value_type *pointer;
@@ -213,7 +33,7 @@ namespace ft {
         public:
             key_compare _comp;
             explicit value_compare(key_compare comp): _comp(comp) {};
-            bool operator()(const value_type &x, const value_type &y) const {return _comp(x.first, y.first);};
+            bool operator()(const value_type &x, const value_type &y) const {return _comp(x, y);};
         };
 
     private:
@@ -237,7 +57,7 @@ namespace ft {
         /**
          * initializion empty node for tree end and begin
          */
-        void initMap() {
+        void initset() {
             _end = _alloc_node.allocate(1);
             _end->parent = nullptr;
             _end->left = nullptr;
@@ -382,9 +202,9 @@ namespace ft {
          * @param comp Comparator for keys
          * @param alloc allocator for pair Key value
          */
-        explicit map(const key_compare &comp = key_compare(), const allocator_type &alloc = allocator_type()) :
+        explicit set(const key_compare &comp = key_compare(), const allocator_type &alloc = allocator_type()) :
                 _alloc_value(alloc), _comp(comp), _root(nullptr), _size(0) {
-            initMap();
+            initset();
         };
 
         /**
@@ -396,32 +216,32 @@ namespace ft {
          * @param alloc
          */
         template<class InputIterator>
-        map(InputIterator first, InputIterator last, const key_compare &comp = key_compare(),
+        set(InputIterator first, InputIterator last, const key_compare &comp = key_compare(),
             const allocator_type &alloc = allocator_type(),
             typename std::enable_if<std::__is_input_iterator<InputIterator>::value>::type * = 0):
                 _alloc_value(alloc), _comp(comp), _root(nullptr), _size(0) {
-            initMap();
+            initset();
             insert(first, last);
         };
 
         /**
          * copy constructor
-         * @param x other map
+         * @param x other set
          */
-        map(const map &x) : _root(nullptr), _size(0) {
+        set(const set &x) : _root(nullptr), _size(0) {
             if (this == &x)
                 return;
             *this = x;
         };
 
-        map &operator=(const map &x) {
+        set &operator=(const set &x) {
             clear();
             _alloc_value = x._alloc_value;
             _comp = x._comp;
             insert(x.begin(), x.end());
         };
 
-        virtual ~map() {
+        virtual ~set() {
             clear();
             _alloc_value.destroy(_end->data);
             _alloc_value.destroy(_begin->data);
@@ -433,12 +253,8 @@ namespace ft {
             _alloc_node.deallocate(_end, 1);
         };
 
-        mapped_type &operator[](const key_type &key) {
-            return insert(value_type(key, mapped_type())).first->second;
-        };
-
         /**
-         * Returns an iterator referring to the first element in the map container.
+         * Returns an iterator referring to the first element in the set container.
          * @return An iterator to the first element in the container.
          */
         iterator begin() {
@@ -474,26 +290,26 @@ namespace ft {
         };
 
         /**
-         * Returns an iterator referring to the past-the-end element in the map container
+         * Returns an iterator referring to the past-the-end element in the set container
          * @return An iterator to the past-the-end element in the container.
          */
         iterator end() { return iterator(_end); };
 
         /**
-         * Returns an const iterator referring to the past-the-end element in the map container
+         * Returns an const iterator referring to the past-the-end element in the set container
          * @return An const iterator to the past-the-end element in the container.
          */
         const_iterator end() const { return const_iterator(_end); };
 
         /**
-         * Returns a reverse iterator pointing to the theoretical element right before the first element in the map
+         * Returns a reverse iterator pointing to the theoretical element right before the first element in the set
          * container (which is considered its reverse end).
          * @return A reverse iterator to the reverse end of the sequence container.
          */
         reverse_iterator rend() { return reverse_iterator(_begin); };
 
         /**
-         * Returns a reverse const iterator pointing to the theoretical element right before the first element in the map
+         * Returns a reverse const iterator pointing to the theoretical element right before the first element in the set
          * container (which is considered its reverse end).
          * @return A reverse const iterator to the reverse end of the sequence container.
          */
@@ -512,7 +328,7 @@ namespace ft {
             node_pointer tmp = _root;
             while (tmp) {
                 parent = tmp;
-                if (!_comp(val.first, tmp->data->first))
+                if (!_comp(val, *(tmp->data)))
                     tmp = tmp->right;
                 else
                     tmp = tmp->left;
@@ -523,7 +339,7 @@ namespace ft {
                 _root->color = _BLACK;
                 return;
             }
-            else if (_comp(parent->data->first, val.first))
+            else if (_comp(*(parent->data), val))
                 parent->right = elem;
             else
                 parent->left = elem;
@@ -682,19 +498,19 @@ namespace ft {
                         x = x->parent;
                     }
                     else {
-                         if (w->left->color == _BLACK) {
-                             w->right->color = _BLACK;
-                             w->color = _RED;
-                             rotation(w, _LEFT);
-                             w = x->parent->left;
-                         }
-                         else {
-                             w->color = x->parent->color;
-                             x->parent->color = _BLACK;
-                             w->left->color = _BLACK;
-                             rotation(x->parent, _RIGHT);
-                             x = _root;
-                         }
+                        if (w->left->color == _BLACK) {
+                            w->right->color = _BLACK;
+                            w->color = _RED;
+                            rotation(w, _LEFT);
+                            w = x->parent->left;
+                        }
+                        else {
+                            w->color = x->parent->color;
+                            x->parent->color = _BLACK;
+                            w->left->color = _BLACK;
+                            rotation(x->parent, _RIGHT);
+                            x = _root;
+                        }
                     }
                 }
             }
@@ -702,24 +518,24 @@ namespace ft {
         };
 
         /**
-         * Insert new element in a map
+         * Insert new element in a set
          * @param val pair key-value
          * @return iterator on new element and true if insert success, or iterator with same key on old element and false
          */
         std::pair<iterator, bool> insert(const value_type &val) {
-            iterator found = find(val.first);
+            iterator found = find(val);
             if (found != end()) {
                 return std::pair<iterator, bool>(found, false);
             }
             unlink();
             standartBstInsertion(val);
             relinkTreeEnd();
-            found = find(val.first);
+            found = find(val);
             return std::pair<iterator, bool>(found, true);
         };
 
         /**
-         * Insert new element in a map between first and last
+         * Insert new element in a set between first and last
          * @tparam InputIterator
          * @param first
          * @param last
@@ -732,14 +548,14 @@ namespace ft {
         };
 
         /**
-         * Insert new element in a map
+         * Insert new element in a set
          * @param position
          * @param val
          * @return iterator on new element
          */
         iterator insert(iterator position, const value_type &val) {
             (void) position;
-            return insert(val).first;
+            return insert(val);
         };
 
         /**
@@ -750,7 +566,7 @@ namespace ft {
          */
         iterator find(const key_type &k) {
             iterator it = begin();
-            for (iterator ite = end(); it != ite && it->first != k; it++);
+            for (iterator ite = end(); it != ite && *it != k; it++);
             return it;
         };
 
@@ -762,30 +578,30 @@ namespace ft {
          */
         const_iterator find(const key_type &k) const {
             const_iterator it = begin();
-            for (const_iterator ite = end(); it != ite && it->first != k; it++);
+            for (const_iterator ite = end(); it != ite && *it != k; it++);
             return it;
         };
 
         /**
-         * Returns the maximum number of elements that the map container can hold.
-         * @return The maximum number of elements a map container can hold as content.
+         * Returns the maximum number of elements that the set container can hold.
+         * @return The maximum number of elements a set container can hold as content.
          */
-        size_type max_size() const { return _alloc_value.max_size() / 2; };
+        size_type max_size() const {  return _alloc_value.max_size() / sizeof(node_pointer); };
 
         /**
-         * Returns the number of elements in the map container.
+         * Returns the number of elements in the set container.
          * @return number of elements in container
          */
         size_type size() const { return _size; };
 
         /**
-         * Returns whether the map container is empty (i.e. whether its size is 0).
+         * Returns whether the set container is empty (i.e. whether its size is 0).
          * @return true if size 0, or false
          */
         bool empty() const { return _size == 0; };
 
         /**
-         * Removes all elements from the map container (which are destroyed), leaving the container with a size of 0.
+         * Removes all elements from the set container (which are destroyed), leaving the container with a size of 0.
          */
         void clear() {
             while (_size)
@@ -794,15 +610,15 @@ namespace ft {
 
 
         /**
-         * Removes from the map container either a single element by position
+         * Removes from the set container either a single element by position
          * @param position
          */
         void erase(iterator position) {
-            erase(position->first);
+            erase(*position);
         };
 
         /**
-         * Removes from the map container either a single element by key
+         * Removes from the set container either a single element by key
          * @param k key
          * @return
          */
@@ -810,12 +626,12 @@ namespace ft {
             node_pointer tmp = _root;
             unlink();
             while (tmp) {
-                if (k == tmp->data->first) {
+                if (k == *(tmp->data)) {
                     deleteFromTree(tmp);
                     relinkTreeEnd();
                     return 1;
                 }
-                if (_comp(k, tmp->data->first))
+                if (_comp(k, *(tmp->data)))
                     tmp = tmp->left;
                 else
                     tmp = tmp->right;
@@ -825,13 +641,13 @@ namespace ft {
         };
 
         /**
-         * Removes from the map container a range of elements ([first,last)).
+         * Removes from the set container a range of elements ([first,last)).
          * @param first
          * @param last
          */
         void erase(iterator first, iterator last) {
             for (; first != last; first++)
-                erase(first->first);
+                erase(first);
         };
 
         /**
@@ -844,10 +660,10 @@ namespace ft {
 
         /**
          * Exchanges the content of the container by the content of x,
-         * which is another map of the same type. Sizes may differ.
-         * @param x Another map container of the same type as this
+         * which is another set of the same type. Sizes may differ.
+         * @param x Another set container of the same type as this
          */
-        void swap(map &x) {
+        void swap(set &x) {
             ft::swap(_size, x._size);
             ft::swap(_root, x._root);
             ft::swap(_begin, x._begin);
@@ -861,7 +677,7 @@ namespace ft {
          */
         size_type count(const key_type& k) const {
             for (iterator it = begin(), ite = end(); it != ite; it++)
-                if (it->first == k)
+                if (it == k)
                     return 1;
             return 0;
         };
@@ -871,24 +687,24 @@ namespace ft {
          * to go before k (i.e., either it is equivalent or goes after).
          * @param k Key to search for.
          * @return An iterator to the the first element in the container whose key is not considered to
-         * go before k, or map::end if all keys are considered to go before k.
+         * go before k, or set::end if all keys are considered to go before k.
          */
         iterator lower_bound (const key_type& k) {
             iterator it = begin();
-            for (iterator ite = end(); it != ite && _comp(it->first, k); it++);
+            for (iterator ite = end(); it != ite && _comp(*it, k); it++);
             return it;
         };
 
         const_iterator lower_bound (const key_type& k) const {
             const_iterator it = begin();
-            for (const_iterator ite = end(); it != ite && _comp(it->first, k); it++);
+            for (const_iterator ite = end(); it != ite && _comp(*it, k); it++);
             return it;
         };
 
         /**
          * Returns an iterator pointing to the first element in the container whose key is considered to go after k.
          * @param k Key to search for.
-         * @return An iterator to the the first element in the container whose key is considered to go after k, or map::end if no keys are considered to go after k.
+         * @return An iterator to the the first element in the container whose key is considered to go after k, or set::end if no keys are considered to go after k.
          */
         iterator upper_bound (const key_type& k) {
             iterator it = lower_bound(k);
@@ -917,38 +733,5 @@ namespace ft {
             return std::pair<iterator, iterator>(lower_bound(k), upper_bound(k));
         };
     };
-    template <class Key, class T, class Compare, class Alloc>
-    bool operator== ( const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs ) {
-        return lhs.size() == rhs.size() && std::equal(lhs.begin(), lhs.end(), rhs.begin());
-    };
 
-    template <class Key, class T, class Compare, class Alloc>
-    bool operator!= ( const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs ) {
-        return !(lhs == rhs);
-    };
-
-    template <class Key, class T, class Compare, class Alloc>
-    bool operator<  ( const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs ) {
-        return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-    };
-
-    template <class Key, class T, class Compare, class Alloc>
-    bool operator<= ( const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs ) {
-        return !(lhs > rhs);
-    };
-
-    template <class Key, class T, class Compare, class Alloc>
-    bool operator>  ( const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs ) {
-        return rhs < lhs;
-    };
-
-    template <class Key, class T, class Compare, class Alloc>
-    bool operator>= ( const map<Key,T,Compare,Alloc>& lhs, const map<Key,T,Compare,Alloc>& rhs ) {
-        return !(lhs < rhs);
-    };
-
-    template <class Key, class T, class Compare, class Alloc>
-    void swap (map<Key,T,Compare,Alloc>& x, map<Key,T,Compare,Alloc>& y) {
-        x.swap(y);
-    };
 }
