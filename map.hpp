@@ -209,6 +209,13 @@ namespace ft {
         typedef rbNode<value_type> &node_reference;
         typedef typename allocator_type::template rebind<rbnode>::other node_allocator;
 
+        class value_compare: public std::binary_function<value_type, value_type, bool> {
+        public:
+            key_compare _comp;
+            explicit value_compare(key_compare comp): _comp(comp) {};
+            bool operator()(const value_type &x, const value_type &y) const {return _comp(x.first, y.first);};
+        };
+
     private:
         enum Direction {
             _RIGHT,
@@ -416,6 +423,10 @@ namespace ft {
 
         ~map() {
             clear();
+            _alloc_value.destroy(_end->data);
+            _alloc_value.destroy(_begin->data);
+            _alloc_value.deallocate(_begin->data, 1);
+            _alloc_value.deallocate(_end->data, 1);
             _alloc_node.destroy(_end);
             _alloc_node.destroy(_begin);
             _alloc_node.deallocate(_begin, 1);
@@ -566,6 +577,121 @@ namespace ft {
             _root->color = _BLACK;
         };
 
+        void unlink() {
+            if (_begin->parent)
+                _begin->parent->left = nullptr;
+            if (_end->parent)
+                _end->parent->right = nullptr;
+        }
+
+        void transplant(node_pointer u, node_pointer v) {
+            if (u && !u->parent) // u is root
+                _root = v;
+            else if (isOnLeft(u))
+                u->parent->left = v;
+            else
+                u->parent->right = v;
+            if (v)
+                v->parent = u->parent;
+        };
+
+        void fixTreeAfterDeletion(node_pointer x) {
+            if (!x)
+                return;
+            while (x != _root and x->color == _BLACK) {
+                if (x == x->parent->left) {
+                    node_pointer w = x->parent->right;
+                    if (w->color == _RED) {
+                        w->color = _BLACK;
+                        x->parent->color = _RED;
+                        rotation(x->parent, _LEFT);
+                        w = x->parent->right;
+                    }
+                    if (w->left->color == _BLACK and w->right->color == _BLACK) {
+                        w->color = _RED;
+                        x = x->parent;
+                    }
+                    else {
+                        if (w->right->color == _BLACK) {
+                            w->left->color = _BLACK;
+                            w->color = _RED;
+                            rotation(w, _RIGHT);
+                            w = x->parent->right;
+                        }
+                        else {
+                            w->color = x->parent->color;
+                            w->parent->color = _BLACK;
+                            w->right->color = _BLACK;
+                            rotation(x->parent, _LEFT);
+                            x = _root;
+                        }
+                    }
+                }
+                else {
+                    node_pointer w = x->parent->left;
+                    if (w->color == _RED) {
+                        w->color = _BLACK;
+                        x->parent->color = _RED;
+                        rotation(x->parent, _RIGHT);
+                        w = x->parent->left;
+                    }
+                    if (w->right->color == _BLACK and w->left->color == _BLACK) {
+                        w->color = _RED;
+                        x = x->parent;
+                    }
+                    else {
+                         if (w->left->color == _BLACK) {
+                             w->right->color = _BLACK;
+                             w->color = _RED;
+                             rotation(w, _LEFT);
+                             w = x->parent->left;
+                         }
+                         else {
+                             w->color = x->parent->color;
+                             x->parent->color = _BLACK;
+                             w->left->color = _BLACK;
+                             rotation(x->parent, _RIGHT);
+                             x = _root;
+                         }
+                    }
+                }
+            }
+            x->color = _BLACK;
+        };
+
+        void deleteFromTree(node_pointer node) { // node contains item to be deleted
+            node_pointer y(node), x;
+            int savedColor = y->color;
+            if (!node->left) {
+                x = node->right;
+                transplant(node, node->right);
+            }
+            else if (!node->right) {
+                x = node->left;
+                transplant(node, node->left);
+            }
+            else {
+                y = getMinFromIt(node->right);
+                savedColor = y->color;
+                x = y->right;
+                if (node == y->parent) {
+                    if (x)
+                        x->parent = y;
+                }
+                else {
+                    transplant(y, y->right);
+                    y->right = node->right;
+                    y->right->parent = y;
+                }
+                transplant(node, y);
+                y->left = node->left;
+                y->left->parent = y;
+                y->color = node->color;
+            }
+            if (savedColor == _BLACK)
+                fixTreeAfterDeletion(x);
+            deleteNode(node);
+        };
         /**
          * Insert new element in a map
          * @param val pair key-value
@@ -657,195 +783,6 @@ namespace ft {
                 erase(begin());
         };
 
-        void unlink() {
-            if (_begin->parent)
-                _begin->parent->left = nullptr;
-            if (_end->parent)
-                _end->parent->right = nullptr;
-        }
-
-        void transplant(node_pointer u, node_pointer v) {
-            if (u && !u->parent) // u is root
-                _root = v;
-            else if (isOnLeft(u))
-                u->parent->left = v;
-            else
-                u->parent->right = v;
-            if (v)
-                v->parent = u->parent;
-        };
-
-        bool hasRedChild(node_pointer x) {
-            return (x->left and x->left->color == _RED) or (x->right and x->right->color == _RED);
-        };
-
-        void fixTreeAfterDeletion(node_pointer x) {
-            if (!x)
-                return;
-            while (x != _root and x->color == _BLACK) {
-                if (x == x->parent->left) {
-                    node_pointer w = x->parent->right;
-                    if (w->color == _RED) {
-                        w->color = _BLACK;
-                        x->parent->color = _RED;
-                        rotation(x->parent, _LEFT);
-                        w = x->parent->right;
-                    }
-                    if (w->left->color == _BLACK and w->right->color == _BLACK) {
-                        w->color = _RED;
-                        x = x->parent;
-                    }
-                    else {
-                        if (w->right->color == _BLACK) {
-                            w->left->color = _BLACK;
-                            w->color = _RED;
-                            rotation(w, _RIGHT);
-                            w = x->parent->right;
-                        }
-                        else {
-                            w->color = x->parent->color;
-                            w->parent->color = _BLACK;
-                            w->right->color = _BLACK;
-                            rotation(x->parent, _LEFT);
-                            x = _root;
-                        }
-                    }
-                }
-                else {
-                    node_pointer w = x->parent->left;
-                    if (w->color == _RED) {
-                        w->color = _BLACK;
-                        x->parent->color = _RED;
-                        rotation(x->parent, _RIGHT);
-                        w = x->parent->left;
-                    }
-                    if (w->right->color == _BLACK and w->left->color == _BLACK) {
-                        w->color = _RED;
-                        x = x->parent;
-                    }
-                    else {
-                         if (w->left->color == _BLACK) {
-                             w->right->color = _BLACK;
-                             w->color = _RED;
-                             rotation(w, _LEFT);
-                             w = x->parent->left;
-                         }
-                         else {
-                             w->color = x->parent->color;
-                             x->parent->color = _BLACK;
-                             w->left->color = _BLACK;
-                             rotation(x->parent, _RIGHT);
-                             x = _root;
-                         }
-                    }
-                }
-            }
-            x->color = _BLACK;
-        };
-
-        node_pointer replace(node_pointer v) {
-            if (v->left and v->right) // when v have two children
-                return getMaxFromIt(v->right);
-            if (!v->left and !v->right) // when without children is leaf
-                return nullptr;
-            if (v->left) // when node have single child
-                return v->left;
-            return v->right;
-        };
-
-
-
-        void linkNodes(node_pointer parent, node_pointer child, Direction direction) {
-            if (!parent)
-                return;
-            if (direction == _RIGHT)
-                parent->right = child;
-            else if (direction == _LEFT)
-                parent->left = child;
-            if (child)
-                child->parent = parent;
-        };
-
-        node_pointer swapValues(node_pointer successor, node_pointer nodeToDel) {
-            bool side;
-            node_pointer left = successor->left;
-            node_pointer right = successor->right;
-            if (successor->parent == nodeToDel) {
-                side = isOnLeft(successor);
-                if (side)
-                    linkNodes(successor, nodeToDel->right, _RIGHT);
-                else
-                    linkNodes(successor, nodeToDel->left, _LEFT);
-                if (nodeToDel->parent) {
-                    if (isOnLeft(nodeToDel))
-                        linkNodes(nodeToDel->parent, successor, _LEFT);
-                    else
-                        linkNodes(nodeToDel->parent, successor, _RIGHT);
-                }
-                else
-                    successor->parent = nullptr;
-                if (side)
-                    linkNodes(successor, nodeToDel, _LEFT);
-                else
-                    linkNodes(successor, nodeToDel, _RIGHT);
-                linkNodes(nodeToDel, right, _RIGHT);
-                linkNodes(nodeToDel, left, _LEFT);
-            }
-            else {
-                node_pointer parent = successor->parent;
-                side = isOnLeft(successor);
-                linkNodes(successor, nodeToDel->right, _RIGHT);
-                linkNodes(successor, nodeToDel->left, _LEFT);
-                if (nodeToDel->parent and isOnLeft(nodeToDel))
-                    linkNodes(nodeToDel->parent, successor, _LEFT);
-                else
-                    linkNodes(nodeToDel->parent, successor, _RIGHT);
-                if (side)
-                    linkNodes(parent, nodeToDel, _LEFT);
-                else
-                    linkNodes(parent,nodeToDel, _RIGHT);
-                linkNodes(nodeToDel, left, _LEFT);
-                linkNodes(nodeToDel, right, _RIGHT);
-            }
-            if (nodeToDel == _root)
-                _root = successor;
-            //std::cout << "tut" << std::endl;
-            return nodeToDel;
-        };
-
-        void deleteFromTree(node_pointer node) { // node contains item to be deleted
-            node_pointer y(node), x;
-            int savedColor = y->color;
-            if (!node->left) {
-                x = node->right;
-                transplant(node, node->right);
-            }
-            else if (!node->right) {
-                x = node->left;
-                transplant(node, node->left);
-            }
-            else {
-                y = getMinFromIt(node->right);
-                savedColor = y->color;
-                x = y->right;
-                if (node == y->parent) {
-                    if (x)
-                        x->parent = y;
-                }
-                else {
-                    transplant(y, y->right);
-                    y->right = node->right;
-                    y->right->parent = y;
-                }
-                transplant(node, y);
-                y->left = node->left;
-                y->left->parent = y;
-                y->color = node->color;
-            }
-            if (savedColor == _BLACK)
-                fixTreeAfterDeletion(x);
-            deleteNode(node);
-        };
 
         /**
          * Removes from the map container either a single element by position
@@ -889,6 +826,14 @@ namespace ft {
         };
 
         /**
+         * Returns a copy of the comparison object used by the container to compare keys.
+         * @return key_comp
+         */
+        key_compare key_comp() const {return _comp;};
+
+        value_compare value_comp() const {return value_compare(_comp);};
+
+        /**
          * Exchanges the content of the container by the content of x,
          * which is another map of the same type. Sizes may differ.
          * @param x Another map container of the same type as this
@@ -900,6 +845,67 @@ namespace ft {
             ft::swap(_end, x._end);
         };
 
-        node_pointer getRoot() {return _root;};
+        /**
+         * Searches the container for elements with a key equivalent to k and returns the number of matches.
+         * @param k key
+         * @return count of key
+         */
+        size_type count(const key_type& k) const {
+            for (iterator it = begin(), ite = end(); it != ite; it++)
+                if (it->first == k)
+                    return 1;
+            return 0;
+        };
+
+        /**
+         * Returns an iterator pointing to the first element in the container whose key is not considered
+         * to go before k (i.e., either it is equivalent or goes after).
+         * @param k Key to search for.
+         * @return An iterator to the the first element in the container whose key is not considered to
+         * go before k, or map::end if all keys are considered to go before k.
+         */
+        iterator lower_bound (const key_type& k) {
+            iterator it = begin();
+            for (iterator ite = end(); it != ite && _comp(it->first, k); it++);
+            return it;
+        };
+
+        const_iterator lower_bound (const key_type& k) const {
+            const_iterator it = begin();
+            for (const_iterator ite = end(); it != ite && _comp(it->first, k); it++);
+            return it;
+        };
+
+        /**
+         * Returns an iterator pointing to the first element in the container whose key is considered to go after k.
+         * @param k Key to search for.
+         * @return An iterator to the the first element in the container whose key is considered to go after k, or map::end if no keys are considered to go after k.
+         */
+        iterator upper_bound (const key_type& k) {
+            iterator it = lower_bound(k);
+            if (it != end())
+                return ++it;
+            return it;
+        };
+        const_iterator upper_bound (const key_type& k) const {
+            const_iterator it = lower_bound(k);
+            if (it != end())
+                return ++it;
+            return it;
+        };
+
+        /**
+         * Returns the bounds of a range that includes all the elements in the container which have a key equivalent to k.
+         * @param k Key to search for
+         * @return The function returns a pair, whose member pair::first is the lower bound of the range
+         * (the same as lower_bound), and pair::second is the upper bound (the same as upper_bound).
+         */
+        std::pair<const_iterator, const_iterator> equal_range (const key_type& k) const {
+            return std::pair<const_iterator, const_iterator>(lower_bound(k), upper_bound(k));
+        };
+
+        std::pair<iterator, iterator> equal_range (const key_type& k) {
+            return std::pair<iterator, iterator>(lower_bound(k), upper_bound(k));
+        };
     };
 }
